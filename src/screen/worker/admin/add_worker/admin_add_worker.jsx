@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -22,6 +23,7 @@ export default function Admin_add_worker() {
   const { token, API_URL } = useContext(MyContext);
 
   const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedCompanyDetails, setSelectedCompanyDetails] = useState(null);
   const [selectedCompanyError, setSelectedCompanyError] = useState(false);
 
   const [fullName, setFullName] = useState("");
@@ -121,19 +123,31 @@ export default function Admin_add_worker() {
         setPhoneNumber("");
         setPwd("");
       } catch (error) {
-        console.error("Error:", error);
+        // console.error("Error:", error);
+        console.log(error.response.data);
+        if (error.response.data.message === "TOO_LONG") {
+          Alert.alert("Error!", "Phone Number Invalid!");
+        } else {
+          Alert.alert(
+            "Error!",
+            error?.response?.data?.message ||
+              error?.response?.data?.error ||
+              "Something went wrong!"
+          );
+        }
       }
     }
   };
   return (
     <SafeAreaView style={globalStyles.view_screen}>
       <Header />
-      <ScrollView>
+      <ScrollView nestedScrollEnabled={true}>
         <View style={{ justifyContent: "center", alignItems: "center" }}>
           <Text style={globalStyles.text_label_heading}>Add Worker</Text>
         </View>
         <CompanyDropdownPicker
           companyChanged={(companyid) => setSelectedCompany(companyid)}
+          setCompanyDetails={(company) => setSelectedCompanyDetails(company)}
         />
         {selectedCompanyError && (
           <Text style={globalStyles.text_label_red}>

@@ -60,16 +60,17 @@ export default function Admin_all_workers({ navigation }) {
   }, [selectedCompany]);
 
   const onBtnClick = () => {
-    
     navigation.navigate("admin_add_company", {
       edit: true,
       company: selectedCompanyDetails,
     });
   };
+
+  console.log("selectedCompanyDetails", selectedCompanyDetails);
   return (
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
       <Header />
-      <ScrollView style={{ height: "100%" }}>
+      <ScrollView style={{ height: "100%" }} nestedScrollEnabled>
         <View style={{ justifyContent: "center", alignItems: "center" }}>
           <Text style={globalStyles.text_label_heading}>All Workers</Text>
         </View>
@@ -81,10 +82,7 @@ export default function Admin_all_workers({ navigation }) {
           <View
             style={{ width: "50%", position: "relative", marginLeft: "50%" }}
           >
-            <TouchableOpacity
-              style={globalStyles.btn_01}
-              onPress={onBtnClick}
-            >
+            <TouchableOpacity style={globalStyles.btn_01} onPress={onBtnClick}>
               <Text style={globalStyles.text_label_btn01}>Edit Company</Text>
             </TouchableOpacity>
           </View>

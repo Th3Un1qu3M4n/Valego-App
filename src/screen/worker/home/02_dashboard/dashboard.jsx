@@ -91,7 +91,11 @@ function Workerdashboard({ navigation }) {
           >
             <Image
               style={{ width: 300, height: 300 }}
-              source={{ uri: QRCode }}
+              source={{
+                uri:
+                  QRCode ||
+                  "https://us.123rf.com/450wm/vectorina24/vectorina242112/vectorina24211200101/179624322-entry-without-a-qr-code-is-prohibited-a-barcode-in-a-crossed-out-red-circle-a-sign-of-prohibition.jpg",
+              }}
             />
           </View>
         </TouchableWithoutFeedback>
