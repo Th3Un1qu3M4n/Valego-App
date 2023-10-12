@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "valego-app",
-    "slug": "valego-app",
+    "name": "Valego",
+    "slug": "Valego",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,20 +11,27 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.th3un1qu3m4n.valegoapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": ["expo-build-properties"],
+    "extra": {
+      "eas": {
+        "projectId": "85a31c92-1679-4abd-93c0-105c718e75ca"
+      }
+    },
+    "owner": "th3un1qu3m4n"
   }
 }
