@@ -235,8 +235,10 @@ export default function App() {
             .then((res) => {
               const userData = res.data._doc;
               console.log("userData", userData);
-              if (userLoggedInType.localeCompare("Customer") == 0) {
-                if (userData.name.localeCompare("") == 0) {
+              console.log("userData.userType", userData.userType);
+              if (userData.userType === "Customer") {
+                console.log("userData.name", userData.name == "");
+                if (userData.name == "") {
                   console.log("Should Show Profile Screen");
                   setIsUserReg(false);
                 } else {
@@ -308,6 +310,7 @@ export default function App() {
 
   return (
     <StripeProvider publishableKey="pk_test_51M86IQLwOcfWtrog3tyMZ2rLAQUg7hIR4matI9pkidMalkjgXU67MPFTMYwLm75CjUsJReZaSpgrAtR9nhp2bqm600CxZHbzaM">
+      <StatusBar style="dark" />
       <MyContext.Provider
         value={{
           user,

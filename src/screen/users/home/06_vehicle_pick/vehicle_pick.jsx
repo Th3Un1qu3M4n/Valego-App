@@ -24,94 +24,97 @@ function User_vehicle_pick({ navigation }) {
   };
 
   const { API_URL, request, setRequest } = useContext(MyContext);
-  const auth = getAuth();
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  // const auth = getAuth();
+  // const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
-  const onCheckout = async () => {
-    // 1. Create a payment intent
-    try {
-      // setModalVisible(true);
-      // Alert.alert("Send Payment Receipts","Kindly email the payment receipt to Cho Luxury Email for amount:\n$"+amount)
-      const token = (await auth.currentUser.getIdToken(true)).toString();
+  // const onCheckout = async () => {
+  //   // 1. Create a payment intent
+  //   try {
+  //     // setModalVisible(true);
+  //     // Alert.alert("Send Payment Receipts","Kindly email the payment receipt to Cho Luxury Email for amount:\n$"+amount)
+  //     const token = (await auth.currentUser.getIdToken(true)).toString();
 
-      const Authorization = "Bearer " + token;
-      const options = {
-        headers: { Authorization },
-      };
-      // console.log("Getting Payment intent", amount)
-      console.log("token is ", token.toString());
-      const response = await axios.post(API_URL + "/api/payments/intent", {
-        requestId: request.requestId,
-      });
-      if (response.error) {
-        Alert.alert("Something went wrong", response.error);
-        return;
-      }
+  //     const Authorization = "Bearer " + token;
+  //     const options = {
+  //       headers: { Authorization },
+  //     };
+  //     // console.log("Getting Payment intent", amount)
+  //     console.log("token is ", token.toString());
+  //     const response = await axios.post(API_URL + "/api/payments/intent", {
+  //       requestId: request.requestId,
+  //     });
+  //     if (response.error) {
+  //       Alert.alert("Something went wrong", response.error);
+  //       return;
+  //     }
 
-      // 2. Initialize the Payment sheet
-      const clientSecret = response.data.paymentIntent;
-      // const clientSecret =
-      // "pi_3NydsrLwOcfWtrog1VyA8tS0_secret_wogLn4jFHzVoEOqA9vdBTQHAf";
+  //     // 2. Initialize the Payment sheet
+  //     const clientSecret = response.data.paymentIntent;
+  //     // const clientSecret =
+  //     // "pi_3NydsrLwOcfWtrog1VyA8tS0_secret_wogLn4jFHzVoEOqA9vdBTQHAf";
 
-      const { error: paymentSheetError } = await initPaymentSheet({
-        merchantDisplayName: request.workerId.companyId.name,
-        paymentIntentClientSecret: clientSecret,
-      });
-      if (paymentSheetError) {
-        Alert.alert("Something went wrong", paymentSheetError.message);
-        return;
-      }
+  //     const { error: paymentSheetError } = await initPaymentSheet({
+  //       merchantDisplayName: request.workerId.companyId.name,
+  //       paymentIntentClientSecret: clientSecret,
+  //     });
+  //     if (paymentSheetError) {
+  //       Alert.alert("Something went wrong", paymentSheetError.message);
+  //       return;
+  //     }
 
-      // 3. Present the Payment Sheet from Stripe
-      const { error: paymentError } = await presentPaymentSheet();
-      if (paymentError) {
-        Alert.alert(`Error code: ${paymentError.code}`, paymentError.message);
-        console.log(paymentError);
-        return;
-      }
-      // onCreateOrder();
-      else {
-        Alert.alert("Payment Successful");
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        };
-        console.log(request);
+  //     // 3. Present the Payment Sheet from Stripe
+  //     const { error: paymentError } = await presentPaymentSheet();
+  //     if (paymentError) {
+  //       Alert.alert(`Error code: ${paymentError.code}`, paymentError.message);
+  //       console.log(paymentError);
+  //       return;
+  //     }
+  //     // onCreateOrder();
+  //     else {
+  //       Alert.alert("Payment Successful");
+  //       const headers = {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       };
+  //       console.log(request);
 
-        console.log(request.requestId);
-        axios
-          .post(
-            `${API_URL}/api/customer/requestForCar/${request.requestId}`,
-            {},
-            {
-              headers,
-            }
-          )
-          .then((responce) => {
-            // setRequest(res.data);
-            // console.log(res.data);
+  //       console.log(request.requestId);
+  //       axios
+  //         .post(
+  //           `${API_URL}/api/customer/requestForCar/${request.requestId}`,
+  //           {},
+  //           {
+  //             headers,
+  //           }
+  //         )
+  //         .then((responce) => {
+  //           // setRequest(res.data);
+  //           // console.log(res.data);
 
-            axios
-              .get(`${API_URL}/api/customer/request/${request._id}`, {
-                headers,
-              })
-              .then((res) => {
-                setRequest(res.data);
-              })
-              .catch((err) => console.log(err));
-          })
-          .catch((err) => console.log(err.response.data.error));
-      }
-    } catch (e) {
-      console.log(e);
-      console.log(e.response.data);
+  //           axios
+  //             .get(`${API_URL}/api/customer/request/${request._id}`, {
+  //               headers,
+  //             })
+  //             .then((res) => {
+  //               setRequest(res.data);
+  //             })
+  //             .catch((err) => console.log(err));
+  //         })
+  //         .catch((err) => console.log(err.response.data.error));
+  //     }
+  //   } catch (e) {
+  //     console.log(e);
+  //     console.log(e.response.data);
 
-      if (e.response) {
-        Alert.alert("Error", e.response.data.message);
-      } else {
-        Alert.alert("Error", e.message);
-      }
-    }
+  //     if (e.response) {
+  //       Alert.alert("Error", e.response.data.message);
+  //     } else {
+  //       Alert.alert("Error", e.message);
+  //     }
+  //   }
+  // };
+  const navigateToPayment = () => {
+    navigation.navigate("user_payment", {});
   };
 
   return (
@@ -120,7 +123,7 @@ function User_vehicle_pick({ navigation }) {
       <View>
         <Text style={globalStyles.text_label_heading}>Vehicle: Parked</Text>
         <Text style={globalStyles.text_label_heading}>
-          Code: {request.requestId}
+          Code: {request?.requestId}
         </Text>
         <View style={globalStyles.br_10}></View>
         <View style={globalStyles.card}>
@@ -132,26 +135,26 @@ function User_vehicle_pick({ navigation }) {
           </View>
           <View style={globalStyles.card_content}>
             <Text style={globalStyles.text_label_card_heading}>
-              {request.workerId.companyId.name}
+              {request?.workerId?.companyId?.name}
             </Text>
             <Text style={globalStyles.text_label_card}>
-              Vehicle: {request.vehicleId.vehicleName}
+              Vehicle: {request?.vehicleId?.vehicleName}
             </Text>
             <Text style={globalStyles.text_label_card}>
               Check in hour:{" "}
-              {new Date(request.checkInTime).toLocaleTimeString([], {
+              {new Date(request?.checkInTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               })}
             </Text>
             <Text style={globalStyles.text_label_card}>
-              Price: ${request.workerId.companyId.totalChargeAmount / 100} MXN{" "}
+              Price: ${request?.amount ? request?.amount / 100 : ""} MXN{" "}
             </Text>
           </View>
         </View>
         <View style={globalStyles.br_10}></View>
 
-        <TouchableWithoutFeedback onPress={() => onCheckout()}>
+        <TouchableWithoutFeedback onPress={() => navigateToPayment()}>
           <View
             style={[
               globalStyles.btn_01,
@@ -167,7 +170,7 @@ function User_vehicle_pick({ navigation }) {
               style={styles.icon}
             />
             <Text style={[globalStyles.text_label_btn01, { marginLeft: 15 }]}>
-              Request a Vehicle
+              Request the Vehicle
             </Text>
           </View>
         </TouchableWithoutFeedback>

@@ -7,6 +7,7 @@ import User_payment from "../../../screen/users/home/07_payment/payment";
 import User_in_process from "../../../screen/users/home/08_in_process/in_process";
 import User_waiting from "../../../screen/users/home/09_waiting/waiting";
 import { MyContext } from "../../../../context/tokenContext";
+import UserPaymentNavigation from "./UserPaymentNavigation";
 const Stack = createNativeStackNavigator();
 
 function UserHomeNavigation() {
@@ -26,7 +27,10 @@ function UserHomeNavigation() {
         />
       )}
       {request && request.status === "Accepted" && (
-        <Stack.Screen name="user_vehicle_pick" component={User_vehicle_pick} />
+        <Stack.Screen
+          name="user_vehicle_pick"
+          component={UserPaymentNavigation}
+        />
       )}
       {request && request.status === "CarRequested" && (
         <Stack.Screen name="user_in_process" component={User_in_process} />
