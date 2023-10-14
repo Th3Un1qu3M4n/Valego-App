@@ -250,10 +250,12 @@ export default function App() {
               setUser({
                 uid: userData.uid,
                 id: userData._id,
-                Phone: userData.phone,
-                name: userData.name,
-                companyid: userData.companyid,
-                pushtoken: expoPushToken.data,
+                Phone: userData?.phone,
+                name: userData?.name,
+                email: userData?.email,
+                companyid: userData?.companyid,
+                pushtoken: expoPushToken?.data,
+                vehicle: userData?.vehicle,
               });
             })
             .catch((err) => console.log(err));
@@ -290,6 +292,7 @@ export default function App() {
 
   // update user state when auth signout
   useEffect(() => {
+    console.log("user changed", user);
     if (user === undefined) {
       setUser(undefined);
     }
@@ -314,6 +317,7 @@ export default function App() {
       <MyContext.Provider
         value={{
           user,
+          setUser,
           token,
           setToken,
           API_URL,

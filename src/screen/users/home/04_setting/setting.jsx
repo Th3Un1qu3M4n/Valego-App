@@ -23,6 +23,7 @@ function User_setting() {
   const [showEditProfileModel, setShowEditProfileModel] = useState(false);
   const [showAddVehicleModel, setShowAddVehicleModel] = useState(false);
   const [showChangeVehicleModel, setShowChangeVehicleModel] = useState(false);
+  const { user } = useContext(MyContext);
 
   return (
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
@@ -129,12 +130,13 @@ function User_setting() {
 }
 
 function EditProfileModel(props) {
-  const { token, API_URL } = useContext(MyContext);
+  const { user, setUser, token, API_URL } = useContext(MyContext);
+  console.log("user,email", user);
 
-  const [fullName, setFullName] = useState("");
+  const [fullName, setFullName] = useState(user.name);
   const [fullNameError, setFullNameError] = useState(false);
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(user.email);
   const [emailError, setEmailError] = useState(false);
 
   const validateEmail = () => {
@@ -171,22 +173,23 @@ function EditProfileModel(props) {
 
     if (to_process) {
       try {
-        const formData = new FormData();
-        formData.append("name", fullName);
-        formData.append("email", email);
         const headers = {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         };
 
         const response = await axios.post(
           `${API_URL}/api/auth/updateProfile`,
-          formData,
+          {
+            name: fullName,
+            email: email,
+          },
           { headers }
         );
         console.log("4");
 
         console.log("API Response:", response.data);
+        setUser(response.data.user);
         alert("Profile Updated!");
         props.close();
       } catch (error) {
@@ -327,16 +330,26 @@ function AddNewVehicleModel(props) {
 
     if (to_process) {
       try {
+        const uri = selectedImage;
+        const uriParts = uri.split(".");
+        const fileType = uriParts[uriParts.length - 1];
         const formData = new FormData();
-        formData.append("name", fullName);
-        formData.append("email", email);
+        formData.append("vehicleImage", {
+          uri,
+          name: Date.now() + `.${fileType}`,
+          type: `image/${fileType}`,
+        });
+        formData.append("vehicleName", vehicle);
+        formData.append("plates", licensePlate);
         const headers = {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         };
 
+        console.log(formData);
+
         const response = await axios.post(
-          `${API_URL}/api/auth/updateProfile`,
+          `${API_URL}/api/customer/vehicle/`,
           formData,
           { headers }
         );
@@ -439,9 +452,9 @@ function AddNewVehicleModel(props) {
   );
 }
 function ChangeCurrentVehicleModel(props) {
-  const { token, API_URL } = useContext(MyContext);
+  const { user, token, API_URL } = useContext(MyContext);
 
-  const [selectedvehicle, setSelectedVehicle] = useState("");
+  const [selectedvehicle, setSelectedVehicle] = useState(user.vehicle);
   const [vehicleList, setVehicleList] = useState([]);
 
   const getActiveRequestsData = async () => {
@@ -469,17 +482,14 @@ function ChangeCurrentVehicleModel(props) {
 
   const changeVehicle = async () => {
     try {
-      const formData = new FormData();
-      formData.append("vehicleName", selectedvehicle.vehicleName);
-      formData.append("plates", selectedvehicle.plates);
       const headers = {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       };
 
-      const response = await axios.get(
-        `${API_URL}/api/customer/vehicle/${selectedvehicle._id}`,
-        formData,
+      const response = await axios.post(
+        `${API_URL}/api/customer/vehicle/${selectedvehicle}`,
+        {},
         { headers }
       );
 
@@ -527,14 +537,15 @@ function ChangeCurrentVehicleModel(props) {
                     {vehicleList.map((item, index) => {
                       return (
                         <TouchableWithoutFeedback
-                          onPress={() => setSelectedVehicle(item)}
+                          onPress={() => setSelectedVehicle(item._id)}
+                          key={item?._id}
                         >
                           <View
                             style={[
                               globalStyles.card_02,
                               {
                                 backgroundColor:
-                                  selectedvehicle._id === item._id
+                                  selectedvehicle === item._id
                                     ? "#aaf0d1"
                                     : "#fff",
                               },
