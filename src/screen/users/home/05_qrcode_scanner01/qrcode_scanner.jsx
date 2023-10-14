@@ -26,7 +26,29 @@ function User_qrcode_scanner({ navigation }) {
 
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
+
+  const getCurrentRequest = async () => {
+    try {
+      const token = await auth.currentUser.getIdToken(true);
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+      axios
+        .get(`${API_URL}/api/worker/activeRequests`, { headers })
+        .then((res) => {
+          console.log("got active requests ", res?.data?.length);
+          console.log(res.data[0]);
+          setRequest(res.data[0]);
+        })
+        .catch((err) => console.log(err));
+    } catch (error) {
+      console.error("Error fetching company data:", error);
+    }
+  };
+
   useEffect(() => {
+    getCurrentRequest();
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === "granted");

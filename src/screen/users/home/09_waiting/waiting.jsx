@@ -18,11 +18,13 @@ import { MyContext } from "../../../../../context/tokenContext";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 import Modal from "react-native-modal";
+import { BarCodeScanner } from "expo-barcode-scanner";
 
 function User_waiting({ navigation }) {
   const { API_URL, request, setRequest, token } = useContext(MyContext);
   const [QRCode, setQRCode] = useState(false);
   const [showQRModel, setShowQRModel] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -95,7 +97,7 @@ function User_waiting({ navigation }) {
           </View>
           <View style={globalStyles.card_content}>
             <Text style={globalStyles.text_label_card_heading}>
-              {request.workerId.companyId.name}
+              {request.workerId.companyId?.name}
             </Text>
             <Text style={globalStyles.text_label_card}>
               Vehicle: {request.vehicleId.vehicleName}{" "}

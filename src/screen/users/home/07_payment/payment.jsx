@@ -35,8 +35,9 @@ function User_payment({ navigation }) {
     }
   };
 
-  const sendRequestToWorker = async (token, cash) => {
+  const sendRequestToWorker = async (cash) => {
     try {
+      const token = (await auth.currentUser.getIdToken(true)).toString();
       Alert.alert("Payment Successful");
       const headers = {
         "Content-Type": "application/json",

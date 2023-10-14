@@ -8,6 +8,7 @@ import {
   Image,
   TouchableWithoutFeedback,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -18,7 +19,8 @@ import { MyContext } from "../../../../../context/tokenContext";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 function Workerdashboard({ navigation }) {
-  const { API_URL, getActiveRequests, activeRequests } = useContext(MyContext);
+  const { API_URL, getActiveRequests, setRequest, activeRequests } =
+    useContext(MyContext);
   const [QRCode, setQRCode] = useState(false);
   const [showQRModel, setShowQRModel] = useState(false);
   const [lstOfActiveRequests, setLstOfActiveRequests] = useState([]);
@@ -30,6 +32,28 @@ function Workerdashboard({ navigation }) {
       getActiveRequests(token);
     } catch (error) {
       console.error("Error fetching company data:", error);
+    }
+  };
+
+  const setSelectedRequest = async (requestId) => {
+    try {
+      const token = await auth.currentUser.getIdToken(true);
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+      console.log("header", headers);
+
+      axios
+        .get(`${API_URL}/api/customer/request/${requestId}`, {
+          headers,
+        })
+        .then((res) => {
+          setRequest(res.data);
+        })
+        .catch((err) => console.log(err));
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -123,7 +147,11 @@ function Workerdashboard({ navigation }) {
         <View style={styles.cardContainer}>
           {activeRequests.map((item, index) => {
             return (
-              <View style={globalStyles.card_02} key={index}>
+              <TouchableOpacity
+                style={globalStyles.card_02}
+                key={index}
+                onPress={() => setSelectedRequest(item._id)}
+              >
                 <Image
                   // source={require("../../../../../assets/images/car.png")}
                   source={{ uri: `${API_URL}/${item.vehicleId?.vehicleImage}` }}
@@ -135,7 +163,7 @@ function Workerdashboard({ navigation }) {
                 <Text style={globalStyles.text_label_card_02}>
                   {item.vehicleId?.plates}
                 </Text>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>

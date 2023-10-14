@@ -84,7 +84,7 @@ export default function App() {
   useEffect(() => {
     if (!request) {
       // setRequest(null);
-      // AsyncStorage.removeItem("Valego_request");
+      AsyncStorage.removeItem("Valego_request");
       return;
     } else {
       AsyncStorage.setItem("Valego_request", JSON.stringify(request));
@@ -156,21 +156,26 @@ export default function App() {
 
       if (value) {
         // alert("in value");
-        const value0 = JSON.parse(value);
-        const token = auth.currentUser.getIdToken(true);
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        };
-        // setRequest(value0);
-        axios
-          .get(`${API_URL}/api/customer/request/${value0._id}`, {
-            headers,
-          })
-          .then((res) => {
-            setRequest(res.data);
-          })
-          .catch((err) => console.log(err));
+        try {
+          const value0 = JSON.parse(value);
+
+          const token = auth.currentUser.getIdToken(true);
+          const headers = {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          };
+          // setRequest(value0);
+          axios
+            .get(`${API_URL}/api/customer/request/${value0._id}`, {
+              headers,
+            })
+            .then((res) => {
+              setRequest(res.data);
+            })
+            .catch((err) => console.log(err));
+        } catch (err) {
+          console.log(err);
+        }
       }
     });
     const unsubscribeFromAuthStatuChanged = onAuthStateChanged(
