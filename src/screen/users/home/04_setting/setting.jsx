@@ -341,7 +341,7 @@ function AddNewVehicleModel(props) {
           { headers }
         );
 
-        console.log("API Response:", response.data);
+        // console.log("API Response:", response.data);
         alert("New Vehicle Added!");
         props.close();
       } catch (error) {
