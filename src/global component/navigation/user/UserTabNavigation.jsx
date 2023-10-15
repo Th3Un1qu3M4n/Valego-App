@@ -1,7 +1,7 @@
-import React from 'react'
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import UserHomeNavigation from './UserHomeNavigation';
-import UserSettingNavigation from './UserSettingNavigation';
+import UserHomeNavigation from "./UserHomeNavigation";
+import UserSettingNavigation from "./UserSettingNavigation";
 import { Image, View } from "react-native";
 
 const Tab = createBottomTabNavigator();
@@ -28,6 +28,7 @@ function UserTabNavigation(props) {
                 alignItems: "center",
                 justifyContent: "center",
                 top: 10,
+                marginBottom: 15,
               }}
             >
               <Image
@@ -56,6 +57,7 @@ function UserTabNavigation(props) {
                 alignItems: "center",
                 justifyContent: "center",
                 top: 10,
+                marginBottom: 15,
               }}
             >
               <Image
@@ -75,7 +77,7 @@ function UserTabNavigation(props) {
         }}
       />
     </Tab.Navigator>
-  )
+  );
 }
 
-export default UserTabNavigation
+export default UserTabNavigation;

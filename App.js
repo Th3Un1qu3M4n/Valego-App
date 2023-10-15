@@ -203,8 +203,20 @@ export default function App() {
               if (
                 notification.request.content.data.type === "serviceDelivered"
               ) {
-                setRequest(null);
-                AsyncStorage.removeItem("Valego_request");
+                Alert.alert(
+                  "Thank you for using Valego",
+                  "Looking forward to serve you again",
+                  [
+                    {
+                      text: "OK",
+                      onPress: () => {
+                        setRequest(null);
+                        AsyncStorage.removeItem("Valego_request");
+                      },
+                    },
+                  ]
+                );
+                // Thank you for using valego
               } else if (
                 notification.request.content.data.type === "serviceRequested"
               ) {

@@ -23,7 +23,7 @@ function User_setting() {
   const [showEditProfileModel, setShowEditProfileModel] = useState(false);
   const [showAddVehicleModel, setShowAddVehicleModel] = useState(false);
   const [showChangeVehicleModel, setShowChangeVehicleModel] = useState(false);
-  const { user } = useContext(MyContext);
+  const [showHistory, setShowHistory] = useState(false);
 
   return (
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
@@ -40,6 +40,11 @@ function User_setting() {
       <ChangeCurrentVehicleModel
         showChangeVehicleModel={showChangeVehicleModel}
         close={() => setShowChangeVehicleModel(false)}
+      />
+
+      <ShowHistoryModel
+        showChangeVehicleModel={showHistory}
+        close={() => setShowHistory(false)}
       />
       <View style={{ height: "83%" }}>
         <TouchableWithoutFeedback onPress={() => setShowEditProfileModel(true)}>
@@ -82,13 +87,15 @@ function User_setting() {
           <Text style={globalStyles.text_label_setting}>Payment info</Text>
         </View>
         <View style={styles.lineStyle} />
-        <View style={styles.row}>
-          <Image
-            source={require("../../../../../assets/icons/h.png")} // Replace with your actual icon path
-            style={styles.icon}
-          />
-          <Text style={globalStyles.text_label_setting}>History</Text>
-        </View>
+        <TouchableWithoutFeedback onPress={() => setShowHistory(true)}>
+          <View style={styles.row}>
+            <Image
+              source={require("../../../../../assets/icons/h.png")} // Replace with your actual icon path
+              style={styles.icon}
+            />
+            <Text style={globalStyles.text_label_setting}>History</Text>
+          </View>
+        </TouchableWithoutFeedback>
         <View style={styles.lineStyle} />
         <View style={styles.row}>
           <Image
@@ -595,10 +602,157 @@ function ChangeCurrentVehicleModel(props) {
     </View>
   );
 }
+
+function ShowHistoryModel(props) {
+  const { user, token, API_URL } = useContext(MyContext);
+
+  const [requestList, setRequestList] = useState([]);
+
+  const getCompletedRequestsData = async () => {
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+      axios
+        .get(`${API_URL}/api/customer/completed`, { headers })
+        .then((res) => {
+          setRequestList(res.data);
+        })
+        .catch((err) => console.log(err));
+    } catch (error) {
+      console.error("Error fetching company data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (props.showChangeVehicleModel) {
+      getCompletedRequestsData();
+    }
+  }, [props.showChangeVehicleModel]);
+
+  return (
+    <View>
+      <Modal isVisible={props.showChangeVehicleModel}>
+        <TouchableWithoutFeedback>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: "#fff",
+                width: "95%",
+                paddingHorizontal: 15,
+                paddingVertical: 15,
+                borderRadius: 10,
+              }}
+            >
+              <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <Text style={globalStyles.text_label_heading}>HISTORY</Text>
+              </View>
+              <View style={globalStyles.br_10}></View>
+              <View
+                style={{
+                  maxHeight: 400,
+                  minHeight: 350,
+                }}
+              >
+                <ScrollView>
+                  <View style={styles.cardContainer}>
+                    {requestList.map((request, index) => {
+                      return (
+                        <View style={globalStyles.card}>
+                          <View>
+                            <Image
+                              source={require("../../../../../assets/icons/uu.png")}
+                              style={styles.icon}
+                            />
+                          </View>
+                          <View style={globalStyles.card_content}>
+                            <View style={styles.spacedRow}>
+                              <View>
+                                <Text
+                                  style={globalStyles.text_label_card_heading}
+                                >
+                                  {request.workerId.companyId?.name}
+                                </Text>
+                              </View>
+                              <View>
+                                <Text
+                                  style={globalStyles.text_label_card_heading}
+                                >
+                                  {request.isPaymentDone ? "CARD" : "CASH"}
+                                </Text>
+                              </View>
+                            </View>
+                            <Text style={globalStyles.text_label_card}>
+                              Vehicle: {request.vehicleId.vehicleName}{" "}
+                              {request.vehicleId.plates}
+                            </Text>
+                            <Text style={globalStyles.text_label_card}>
+                              Admission time:{" "}
+                              {new Date(request.checkInTime).toLocaleTimeString(
+                                [],
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Text>
+                            <Text style={globalStyles.text_label_card}>
+                              Checkout time:{" "}
+                              {new Date(
+                                request.checkOutTime
+                              ).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </Text>
+                            <Text style={globalStyles.text_label_card}>
+                              Amount:{" "}
+                              {(request.amount / 100).toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                              })}
+                            </Text>
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
+              </View>
+              <View style={globalStyles.br_10}></View>
+
+              <TouchableOpacity
+                style={[globalStyles.btn_01, { backgroundColor: "#FF5733" }]}
+                onPress={props.close}
+              >
+                <Text style={globalStyles.text_label_btn01}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </View>
+  );
+}
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  spacedRow: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 30,
+    width: "100%",
   },
   icon: {
     width: 28, // Set the width of your icon
@@ -622,6 +776,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    width: "100%",
   },
   car_img_dashboard: {
     resizeMode: "stretch",

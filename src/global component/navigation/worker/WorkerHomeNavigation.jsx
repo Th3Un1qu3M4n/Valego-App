@@ -16,19 +16,20 @@ function WorkerHomeNavigation() {
       {!request && (
         <Stack.Screen name="worker_dashboard" component={Workerdashboard} />
       )}
-      {request && request.status === "CarRequested" && (
-        <Stack.Screen
-          name="worker_vehicle_requested"
-          component={Worker_vehicle_requested}
-        />
-      )}
+      {request &&
+        (request.status === "Accepted" ||
+          request.status === "CarRequested") && (
+          <Stack.Screen
+            name="worker_vehicle_requested"
+            component={Worker_vehicle_requested}
+          />
+        )}
       {request && request.status === "CarReady" && (
         <Stack.Screen
           name="worker_vehicle_ready"
           component={Worker_vehicle_ready}
         />
       )}
-      
     </Stack.Navigator>
   );
 }

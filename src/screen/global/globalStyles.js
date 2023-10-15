@@ -21,7 +21,7 @@ const globalStyles = StyleSheet.create({
     fontWeight: "600",
     width: "90%",
   },
-  
+
   text_label_btn01: {
     fontFamily: "EncodeSansRegular",
     fontSize: 16,
@@ -42,7 +42,7 @@ const globalStyles = StyleSheet.create({
   text_label_card_02_head: {
     fontFamily: "EncodeSansSemiBold",
     fontSize: 15,
-    marginTop:5
+    marginTop: 5,
   },
   text_label_card_02: {
     fontFamily: "EncodeSansRegular",
@@ -53,7 +53,7 @@ const globalStyles = StyleSheet.create({
     fontFamily: "EncodeSansRegular",
     fontSize: 14,
     paddingLeft: 10,
-    paddingTop:5
+    paddingTop: 5,
   },
 
   link_01: {
@@ -102,7 +102,7 @@ const globalStyles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 5,
     flexDirection: "row",
-    margin:5
+    margin: 5,
   },
   card_02: {
     width: "47%",
@@ -115,19 +115,20 @@ const globalStyles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 5,
     flexDirection: "column",
-    marginBottom:10
+    marginBottom: 10,
   },
 
   card_content: {
     paddingHorizontal: 10,
+    width: "90%",
   },
 
   image_screen: {
-    resizeMode:"stretch",
+    resizeMode: "stretch",
     height: 210,
     width: Dimensions.get("window").width - 40,
-    marginBottom:20,
-    marginTop:10
+    marginBottom: 20,
+    marginTop: 10,
   },
   image_card: {},
   image_header: {},
@@ -136,7 +137,7 @@ const globalStyles = StyleSheet.create({
 
   view_screen: {
     paddingHorizontal: 20,
-    paddingBottom:40
+    paddingBottom: 40,
   },
   br_15: {
     marginVertical: 15,

@@ -8,7 +8,8 @@ import {
   Image,
   TouchableWithoutFeedback,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
+  Alert,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -39,14 +40,13 @@ function Worker_vehicle_ready({ navigation }) {
   }, []);
 
   const afterQrScan = () => {
-    
     // setRequest(null);
     AsyncStorage.removeItem("Valego_request");
   };
   const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
     const data0 = JSON.parse(data);
-    
+
     try {
       const token = await auth.currentUser.getIdToken(true);
 
@@ -54,21 +54,23 @@ function Worker_vehicle_ready({ navigation }) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       };
-      
+
       axios
-        .post(`${API_URL}/api/worker/confirm/${request.requestId}`,{"requestId": request.requestId}, {
-          headers,
-        })
+        .post(
+          `${API_URL}/api/worker/confirm/${request.requestId}`,
+          { requestId: request.requestId },
+          {
+            headers,
+          }
+        )
         .then((res) => {
           setRequest(null);
           AsyncStorage.removeItem("Valego_request");
-
         })
         .catch((err) => console.log(err.response.data));
     } catch (e) {
       console.log("Error:", e);
     }
-
   };
 
   const renderCamera = () => {
@@ -164,6 +166,15 @@ function Worker_vehicle_ready({ navigation }) {
                 minute: "2-digit",
               })}
             </Text>
+            {!request?.isPaymentMade && (
+              <Text style={globalStyles.text_label_card}>
+                Amount to Receive:{" "}
+                {(request.amount / 100).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                })}
+              </Text>
+            )}
           </View>
         </View>
 
@@ -189,7 +200,39 @@ function Worker_vehicle_ready({ navigation }) {
             </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setShowQRModel(true)}>
+        <TouchableOpacity
+          onPress={() => {
+            console.log("SCANNING");
+            if (!request?.isPaymentMade) {
+              console.log("ALERT TO COLLECT");
+              try {
+                const heading = `Collect ${(
+                  request.amount / 100
+                ).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                })}`;
+                console.log(heading);
+                Alert.alert(
+                  heading,
+                  "Ensure the collected Amount",
+                  [
+                    {
+                      text: "Cancel",
+                      onPress: () => console.log("Cancel Pressed"),
+                      style: "cancel",
+                    },
+                    { text: "Confirm", onPress: () => setShowQRModel(true) },
+                  ],
+
+                  { cancelable: false }
+                );
+              } catch {}
+            } else {
+              setShowQRModel(true);
+            }
+          }}
+        >
           <View
             style={[
               globalStyles.btn_01,
@@ -209,8 +252,39 @@ function Worker_vehicle_ready({ navigation }) {
           </View>
         </TouchableOpacity>
       </View>
-      {/* <View style={{ position: "absolute", bottom: 10, left: 20 }}>
-        <Link
+      <View style={{ position: "absolute", bottom: 10, left: 20 }}>
+        <TouchableOpacity onPress={() => setRequest(null)}>
+          <View
+            style={[
+              {
+                flexDirection: "row",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                paddingHorizontal: 15,
+                marginVertical: 0,
+                width: "100%",
+                backgroundColor: "#fff",
+                padding: 10,
+                borderRadius: 10,
+                marginBottom: 10,
+              },
+            ]}
+          >
+            <Image
+              source={require(`../../../../../assets/icons/home.png`)}
+              style={styles.icon}
+            />
+            <Text
+              style={[
+                globalStyles.text_label_btn01,
+                { color: "#1a344f", fontWeight: "700" },
+              ]}
+            >
+              Home
+            </Text>
+          </View>
+        </TouchableOpacity>
+        {/* <Link
           style={globalStyles.link_01}
           to={{ screen: "contactus", params: {} }}
         >
@@ -221,8 +295,8 @@ function Worker_vehicle_ready({ navigation }) {
           to={{ screen: "contactus", params: {} }}
         >
           Contact us
-        </Link>
-      </View> */}
+        </Link> */}
+      </View>
     </SafeAreaView>
   );
 }

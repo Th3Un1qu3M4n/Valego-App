@@ -1,7 +1,7 @@
-import React from 'react'
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import WorkerHomeNavigation from './WorkerHomeNavigation';
-import WorkerSettingNavigation from './WorkerSettingNavigation';
+import WorkerHomeNavigation from "./WorkerHomeNavigation";
+import WorkerSettingNavigation from "./WorkerSettingNavigation";
 import { Image, View } from "react-native";
 
 const Tab = createBottomTabNavigator();
@@ -27,6 +27,7 @@ function WorkerTabNavigation() {
                 alignItems: "center",
                 justifyContent: "center",
                 top: 10,
+                marginBottom: 15,
               }}
             >
               <Image
@@ -55,6 +56,7 @@ function WorkerTabNavigation() {
                 alignItems: "center",
                 justifyContent: "center",
                 top: 10,
+                marginBottom: 15,
               }}
             >
               <Image
@@ -74,7 +76,7 @@ function WorkerTabNavigation() {
         }}
       />
     </Tab.Navigator>
-  )
+  );
 }
 
-export default WorkerTabNavigation
+export default WorkerTabNavigation;

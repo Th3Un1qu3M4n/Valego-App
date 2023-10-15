@@ -163,6 +163,9 @@ function Workerdashboard({ navigation }) {
                 <Text style={globalStyles.text_label_card_02}>
                   {item.vehicleId?.plates}
                 </Text>
+                <Text style={globalStyles.text_label_card_02}>
+                  Status: {item.status == "Accepted" ? "Pending" : item.status}
+                </Text>
               </TouchableOpacity>
             );
           })}
