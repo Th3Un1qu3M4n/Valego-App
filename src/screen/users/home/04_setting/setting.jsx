@@ -685,7 +685,7 @@ function ShowHistoryModel(props) {
                                 <Text
                                   style={globalStyles.text_label_card_heading}
                                 >
-                                  {request.isPaymentDone ? "CARD" : "CASH"}
+                                  {request.isPaymentMade ? "CARD" : "CASH"}
                                 </Text>
                               </View>
                             </View>
@@ -711,6 +711,17 @@ function ShowHistoryModel(props) {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
+                            </Text>
+                            <Text style={globalStyles.text_label_card}>
+                              Date:{" "}
+                              {new Date(request.checkInTime).toLocaleDateString(
+                                [],
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )}
                             </Text>
                             <Text style={globalStyles.text_label_card}>
                               Amount:{" "}
