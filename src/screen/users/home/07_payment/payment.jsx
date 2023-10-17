@@ -14,14 +14,40 @@ import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
 import { SafeAreaView } from "react-native-safe-area-context";
 import globalStyles from "../../../global/globalStyles";
-import { useStripe } from "@stripe/stripe-react-native";
+import { PaymentSheet, useStripe } from "@stripe/stripe-react-native";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
 import { MyContext } from "../../../../../context/tokenContext";
 
 function User_payment({ navigation }) {
   const { API_URL, request, setRequest } = useContext(MyContext);
+  // const { API_URL, setRequest } = useContext(MyContext);
+
   const [cash, setCash] = useState(false);
+
+  // const DummyRequest = {
+  //   _id: "65230ebf5e2cffedad6ccbee",
+  //   requestId: "1697511852879",
+  //   customerId: "60f8b1b1e6b3c20015f2b3a4",
+  //   workerId: {
+  //     _id: "60f8b1b1e6b3c20015f2b3a6",
+  //     companyId: {
+  //       _id: "60f8b1b1e6b3c20015f2b3a7",
+  //       name: "Cho Luxury",
+  //       email: " ",
+  //       phone: "1234567890",
+  //       address: "1234, abc street, xyz city",
+  //       __v: 0,
+  //     },
+  //     name: "John Doe",
+  //     email: " ",
+  //     phone: "1234567890",
+  //     address: "1234, abc street, xyz city",
+  //     __v: 0,
+  //   },
+  // };
+
+  // const request = DummyRequest;
 
   const auth = getAuth();
 
@@ -105,6 +131,11 @@ function User_payment({ navigation }) {
       const { error: paymentSheetError } = await initPaymentSheet({
         merchantDisplayName: request.workerId.companyId.name,
         paymentIntentClientSecret: clientSecret,
+        billingDetailsCollectionConfiguration: {
+          address: PaymentSheet.AddressCollectionMode.NEVER,
+        },
+        // save card for future payments
+        setup_future_usage: "on_session",
       });
       if (paymentSheetError) {
         Alert.alert("Something went wrong", paymentSheetError.message);

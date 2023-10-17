@@ -124,36 +124,6 @@ function User_info({ navigation }) {
       to_process = false;
     } else setLicensePlateError(false);
 
-    if (
-      (cardNumber.localeCompare("") == 0 ||
-        cardNumber.localeCompare(" ") == 0 ||
-        cardNumber.localeCompare(null) == 0) &&
-      !toggle
-    ) {
-      setCardNumberError(true);
-      to_process = false;
-    } else setCardNumberError(false);
-
-    if (
-      (ccv.localeCompare("") == 0 ||
-        ccv.localeCompare(" ") == 0 ||
-        ccv.localeCompare(null) == 0) &&
-      !toggle
-    ) {
-      setCCVError(true);
-      to_process = false;
-    } else setCCVError(false);
-
-    if (
-      (expiringDate.localeCompare("") == 0 ||
-        expiringDate.localeCompare(" ") == 0 ||
-        expiringDate.localeCompare(null) == 0) &&
-      !toggle
-    ) {
-      setExpiringDateError(true);
-      to_process = false;
-    } else setExpiringDateError(false);
-
     if (to_process) {
       console.log("1");
 
@@ -217,7 +187,9 @@ function User_info({ navigation }) {
             *Fullname is required.....
           </Text>
         )}
-        <Text style={globalStyles.text_label_input}>Email</Text>
+        <Text style={[globalStyles.text_label_input, { marginTop: 12 }]}>
+          Email
+        </Text>
         <TextInput
           style={globalStyles.text_input}
           keyboardType="email-address"
@@ -230,7 +202,9 @@ function User_info({ navigation }) {
             *Correct Email is required.....
           </Text>
         )}
-        <Text style={globalStyles.text_label_input}>Vehicle</Text>
+        <Text style={[globalStyles.text_label_input, { marginTop: 12 }]}>
+          Vehicle
+        </Text>
         <View style={[globalStyles.text_input, styles.row]}>
           <TextInput
             style={globalStyles.text_label_input_text}
@@ -262,12 +236,14 @@ function User_info({ navigation }) {
         )}
         <View style={styles.row}>
           <View style={styles.col1}>
-            <Text style={globalStyles.text_label_input}>License Plate</Text>
+            <Text style={[globalStyles.text_label_input, { marginTop: 12 }]}>
+              License Plate
+            </Text>
             <TextInput
               style={globalStyles.text_input}
               value={licensePlate}
               onChangeText={(e) => setLicensePlate(e)}
-              placeholder={"02/12/1999"}
+              placeholder={"ABC-22-1234"}
             />
             {licensePlateError && (
               <Text style={globalStyles.text_label_red}>
@@ -275,88 +251,15 @@ function User_info({ navigation }) {
               </Text>
             )}
           </View>
-
-          <View style={styles.col1}>
-            <Text style={globalStyles.text_label_input}>Card Number</Text>
-            <TextInput
-              style={globalStyles.text_input}
-              keyboardType="numeric"
-              value={cardNumber}
-              onChangeText={(e) => setCardNumber(e)}
-              placeholder={"1234 5678 9012"}
-            />
-            {!toggle && cardNumberError && (
-              <Text style={globalStyles.text_label_red}>
-                *Card Number is required.....
-              </Text>
-            )}
-          </View>
         </View>
 
-        <View style={styles.row}>
-          <View style={styles.col1}>
-            <Text style={globalStyles.text_label_input}>CCV</Text>
-            <TextInput
-              style={globalStyles.text_input}
-              keyboardType="numeric"
-              value={ccv}
-              onChangeText={(e) => setCCV(e)}
-              placeholder={"1234"}
-            />
-            {!toggle && ccvError && (
-              <Text style={globalStyles.text_label_red}>
-                *Card CCV is required.....
-              </Text>
-            )}
-          </View>
-          <View style={styles.col1}>
-            <Text style={globalStyles.text_label_input}>Expiring date</Text>
-            {/* <TextInput
-              style={globalStyles.text_input}
-              value={otp}
-              onChangeText={(e) => setOtp(e)}
-              placeholder={"02/12/1999"}
-            /> */}
-            <View style={[globalStyles.text_input, styles.row]}>
-              <Image
-                source={require("../../../../../assets/icons/cal.png")} // Replace with your actual icon path
-                style={styles.icon}
-              />
-              <TextInput
-                style={globalStyles.text_label_input_text}
-                placeholder="12/29"
-                value={expiringDate}
-                onChangeText={(e) => setExpiringDate(e)}
-              />
-            </View>
-            {!toggle && expiringDateError && (
-              <Text style={globalStyles.text_label_red}>
-                *Card Expiring date is required.....
-              </Text>
-            )}
-          </View>
-        </View>
-        <View style={globalStyles.br_3}></View>
-        <View style={styles.row}>
-          <Text style={[styles.rowText, globalStyles.text_label_input]}>
-            Do not add card for now
-          </Text>
-          <Toggle
-            color={"#1a344f"}
-            size={20}
-            filled={true}
-            circleColor={"white"}
-            toggle={toggle}
-            setToggle={setToggle}
-          />
-        </View>
         <View style={globalStyles.br_3}></View>
 
         <TouchableOpacity style={globalStyles.btn_01} onPress={onBtnClick}>
           <Text style={globalStyles.text_label_btn01}>Contiune</Text>
         </TouchableOpacity>
         <Link
-          style={globalStyles.link_01}
+          style={[globalStyles.link_01, { marginTop: 10 }]}
           to={{ screen: "contactus", params: {} }}
         >
           Contact us

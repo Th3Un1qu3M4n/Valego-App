@@ -429,7 +429,7 @@ function AddNewVehicleModel(props) {
                 style={globalStyles.text_input}
                 value={licensePlate}
                 onChangeText={(e) => setLicensePlate(e)}
-                placeholder={"02/12/1999"}
+                placeholder={"ABC-22-1234"}
               />
               {licensePlateError && (
                 <Text style={globalStyles.text_label_red}>
@@ -535,17 +535,18 @@ function ChangeCurrentVehicleModel(props) {
               <View style={globalStyles.br_10}></View>
               <View
                 style={{
-                  maxHeight: 400,
-                  minHeight: 250,
+                  maxHeight: 200,
+                  minHeight: 150,
                 }}
               >
-                <ScrollView>
-                  <View style={styles.cardContainer}>
+                <ScrollView horizontal>
+                  <View style={styles.cardContainerHoriontal}>
                     {vehicleList.map((item, index) => {
                       return (
-                        <TouchableWithoutFeedback
+                        <TouchableOpacity
                           onPress={() => setSelectedVehicle(item._id)}
                           key={item?._id}
+                          style={{ width: 120 }}
                         >
                           <View
                             style={[
@@ -553,8 +554,13 @@ function ChangeCurrentVehicleModel(props) {
                               {
                                 backgroundColor:
                                   selectedvehicle === item._id
-                                    ? "#aaf0d1"
+                                    ? "#1a344f"
                                     : "#fff",
+                                width: "100%",
+                                color:
+                                  selectedvehicle === item._id
+                                    ? "#fff"
+                                    : "#1a344f",
                               },
                             ]}
                             key={index}
@@ -566,14 +572,34 @@ function ChangeCurrentVehicleModel(props) {
                               }}
                               style={styles.car_img_dashboard}
                             />
-                            <Text style={globalStyles.text_label_card_02_head}>
+                            <Text
+                              style={[
+                                globalStyles.text_label_card_02_head,
+                                {
+                                  color:
+                                    selectedvehicle === item._id
+                                      ? "#fff"
+                                      : "#1a344f",
+                                },
+                              ]}
+                            >
                               {item.vehicleName}
                             </Text>
-                            <Text style={globalStyles.text_label_card_02}>
+                            <Text
+                              style={[
+                                globalStyles.text_label_card_02,
+                                {
+                                  color:
+                                    selectedvehicle === item._id
+                                      ? "#fff"
+                                      : "#1a344f",
+                                },
+                              ]}
+                            >
                               {item.plates}
                             </Text>
                           </View>
-                        </TouchableWithoutFeedback>
+                        </TouchableOpacity>
                       );
                     })}
                   </View>
@@ -665,7 +691,11 @@ function ShowHistoryModel(props) {
                   <View style={styles.cardContainer}>
                     {requestList.map((request, index) => {
                       return (
-                        <View style={globalStyles.card}>
+                        <TouchableOpacity
+                          style={globalStyles.card}
+                          key={request?._id || index}
+                        >
+                          {/* <View style={{}}> */}
                           <View>
                             <Image
                               source={require("../../../../../assets/icons/uu.png")}
@@ -673,10 +703,12 @@ function ShowHistoryModel(props) {
                             />
                           </View>
                           <View style={globalStyles.card_content}>
+                            {/* <View style={{}}> */}
                             <View style={styles.spacedRow}>
                               <View>
                                 <Text
                                   style={globalStyles.text_label_card_heading}
+                                  // style={{}}
                                 >
                                   {request.workerId.companyId?.name}
                                 </Text>
@@ -731,7 +763,7 @@ function ShowHistoryModel(props) {
                               })}
                             </Text>
                           </View>
-                        </View>
+                        </TouchableOpacity>
                       );
                     })}
                   </View>
@@ -787,7 +819,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    gap: 10,
     width: "100%",
+    // backgroundColor: "red",
+    padding: 10,
+  },
+  cardContainerHoriontal: {
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    justifyContent: "space-between",
+    gap: 10,
+    width: "100%",
+    // backgroundColor: "red",
+    padding: 10,
   },
   car_img_dashboard: {
     resizeMode: "stretch",
