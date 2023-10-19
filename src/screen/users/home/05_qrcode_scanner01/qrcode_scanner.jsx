@@ -56,13 +56,16 @@ function User_qrcode_scanner({ navigation }) {
   }, []);
 
   const handleBarCodeScanned = async ({ type, data }) => {
-    setScanned(true);
-    console.log(data);
-    data = JSON.parse(data);
-
+    
+   
     try {
       const token = await auth.currentUser.getIdToken(true);
-
+      console.log(data);
+      data = JSON.parse(data);
+      
+      if(data.request.requestId){
+        setScanned(true);
+      }
       const headers = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -84,6 +87,7 @@ function User_qrcode_scanner({ navigation }) {
       console.log("API Response:", response.data);
     } catch (e) {
       console.log("Error:", e.response.data.error);
+      setScanned(false);
     }
 
     // onBtnClick();

@@ -3,7 +3,7 @@ import { Text, View, Image, TouchableOpacity,StyleSheet } from "react-native"; /
 import { getAuth, signOut } from "firebase/auth";
 import { MyContext } from "../../../context/tokenContext";
 function Header(props) {
-  const { user, setRequest,userLoggedInType } = useContext(MyContext);
+  const { user,request, setRequest,userLoggedInType } = useContext(MyContext);
 
   const auth = getAuth();
 
@@ -28,7 +28,7 @@ function Header(props) {
         paddingBottom: 15,
       }}
     >
-      {!(userLoggedInType=="Customer") && user && (
+      {!(userLoggedInType=="Customer") && user && request&& (
         <TouchableOpacity
           style={{
             position: "absolute",
@@ -37,10 +37,10 @@ function Header(props) {
             paddingVertical: 7,
             borderRadius: 7,
           }}
-          onPress={signout}
+          onPress={()=>setRequest(null)}
         >
            <Image
-              source={require("../../../assets/icons/logout.png")} // Replace with your actual icon path
+              source={require("../../../assets/icons/back.png")} // Replace with your actual icon path
               style={styles.icon}
             />
         </TouchableOpacity>
@@ -53,7 +53,23 @@ function Header(props) {
         }}
         source={require("../../../assets/images/v1.png")}
       />
-      
+       {!(userLoggedInType=="Customer") && user && (
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            right: 0,
+            paddingHorizontal: 5,
+            paddingVertical: 7,
+            borderRadius: 7,
+          }}
+          onPress={signout}
+        >
+           <Image
+              source={require("../../../assets/icons/logout.png")} // Replace with your actual icon path
+              style={styles.icon}
+            />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

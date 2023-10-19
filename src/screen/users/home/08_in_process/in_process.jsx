@@ -163,7 +163,7 @@ function ViewNotes(props) {
   const [selectedImage, setSelectedImage] = useState(null);
   useEffect(() => {
     if (props.showViewNotesModel) {
-      alert(props.type);
+      
       if(props.type === "Customer"){
         setBody(request.customerNotes.text);
         setSelectedImage(request.customerNotes.image);

@@ -107,6 +107,7 @@ export default function App() {
   };
 
   const serviceRequested = async (_id) => {
+    alert("1");
     const auth = getAuth();
     const token = await auth.currentUser.getIdToken(true);
     const headers = {
@@ -120,6 +121,7 @@ export default function App() {
         // console.log(res.data);
         const vehicle = res.data.vehicleId;
         // Work here
+        alert("2");
         AcceptingNotes(token, API_URL, res.data);
         // Alert.alert(
         //   "Parking Request",
@@ -226,6 +228,7 @@ export default function App() {
               } else if (
                 notification.request.content.data.type === "serviceRequested"
               ) {
+                alert("0");
                 serviceRequested(notification.request.content.data.requestId);
               } else if (
                 notification.request.content.data.type === "customerRequested"

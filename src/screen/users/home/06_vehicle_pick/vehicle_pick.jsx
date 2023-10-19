@@ -279,7 +279,7 @@ function CustomerNotes(props) {
   // const [vehicle, setVehicle] = useState("");
   // const [vehicleError, setVehicleError] = useState(false);
 
-  const [body, setBody] = useState(request?.customerNotes.text);
+  const [body, setBody] = useState(request?.customerNotes?.text);
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageOnline, setSelectedImageOnline] = useState(null);
@@ -314,8 +314,8 @@ function CustomerNotes(props) {
 
   useEffect(() => {
     if (props.showCustomerNotesModel) {
-      setBody(request.customerNotes.text);
-      setSelectedImageOnline(request.customerNotes.image);
+      setBody(request?.customerNotes?.text);
+      setSelectedImageOnline(request?.customerNotes?.image);
     }
   }, [props.showCustomerNotesModel]);
   const addMyNotes = async () => {
