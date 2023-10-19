@@ -107,7 +107,7 @@ function Workerdashboard({ navigation }) {
   };
   return (
     <SafeAreaView style={globalStyles.view_screen}>
-      <Header />
+      <Header/>
       <Modal isVisible={showQRModel}>
         <TouchableWithoutFeedback onPress={() => setShowQRModel(false)}>
           <View

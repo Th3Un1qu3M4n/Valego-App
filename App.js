@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useFonts } from "expo-font";
 import { MyContext } from "./context/tokenContext";
 import { StatusBar } from "expo-status-bar";
+import Checkbox from "expo-checkbox";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import UserTabNavigation from "./src/global component/navigation/user/UserTabNavigation";
@@ -118,32 +119,37 @@ export default function App() {
         // setRequest(res.data);
         // console.log(res.data);
         const vehicle = res.data.vehicleId;
-        Alert.alert(
-          "Parking Request",
-          `${vehicle.vehicleName} - ${vehicle.plates}`,
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                getActiveRequests(token);
-              },
-            },
-          ]
-        );
+        // Work here
+        AcceptingNotes(token, API_URL, res.data);
+        // Alert.alert(
+        //   "Parking Request",
+        //   `${vehicle.vehicleName} - ${vehicle.plates}`,
+        //   [
+        //     {
+        //       text: "OK",
+        //       onPress: () => {
+        //         getActiveRequests(token);
+        //       },
+        //     },
+        //   ]
+        // );
       })
       .catch((err) => console.log(err));
   };
 
-  const updateRequest = (userToken, _id) => {
+  const updateRequest = async (userToken, _id) => {
+    console.log("in updateRequest");
+    const auth = getAuth();
+    const token = await auth.currentUser.getIdToken(true);
     const headers = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${userToken}`,
+      Authorization: `Bearer ${token}`,
     };
     axios
       .get(`${API_URL}/api/customer/request/${_id}`, { headers })
       .then((res) => {
         setRequest(res.data);
-        console.log(res.data);
+        console.log("updateRequest", res.data);
       })
       .catch((err) => console.log(err));
   };
@@ -345,6 +351,7 @@ export default function App() {
           getActiveRequests,
           activeRequests,
           updateRequest,
+          userLoggedInType
         }}
       >
         <NavigationContainer>
@@ -363,11 +370,198 @@ export default function App() {
   );
 }
 
+function AcceptingNotes(token, API_URL, request) {
+  // const { token, API_URL, request, updateRequest } = useContext(MyContext);
+
+  // const [vehicle, setVehicle] = useState("");
+  // const [vehicleError, setVehicleError] = useState(false);
+  const [isChecked, setChecked] = useState(false);
+  const [showModel, setShowModel] = useState(true);
+
+
+  const [body, setBody] = useState("");
+
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const [showImage, setShowImage] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== "web") {
+        const { status } =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+          alert("Sorry, we need camera roll permissions to make this work!");
+        }
+      }
+    })();
+  }, []);
+  const pickImageAsync = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      console.log(result);
+      setSelectedImage(result.assets[0].uri);
+      setShowImage(true);
+    } else {
+      alert("You did not select any image.");
+    }
+  };
+
+  // useEffect(() => {
+  //   if (props.showCustomerNotesModel) {
+  //     setBody(request.customerNotes.text);
+  //     setSelectedImageOnline(request.customerNotes.image);
+  //   }
+  // }, [props.showCustomerNotesModel]);
+  const addMyNotes = async () => {
+    let to_process = true;
+
+    if (to_process) {
+      try {
+        const formData = new FormData();
+        const uri = selectedImage;
+        const uriParts = uri.split(".");
+        const fileType = uriParts[uriParts.length - 1];
+        formData.append("image", {
+          uri,
+          name: Date.now() + `.${fileType}`,
+          type: `image/${fileType}`,
+        });
+
+        formData.append("text", body);
+
+        const headers = {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        };
+
+        const response = await axios.post(
+          `${API_URL}/api/worker/updateRequestComments/${request._id}`,
+          formData,
+          { headers }
+        );
+        updateRequest(token, request._id);
+        setBody("");
+        setSelectedImage(null);
+        selectedImageOnline(null);
+        setShowImage(false);
+        alert("Notes Updated!");
+        setShowModel(false);
+        // props.close();
+      } catch (error) {
+        console.error("Error :", error.response);
+      }
+    }
+  };
+  return (
+    <View>
+      <Modal isVisible={showModel}>
+        <TouchableWithoutFeedback>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: "#fff",
+                width: "95%",
+                paddingHorizontal: 15,
+                paddingVertical: 15,
+                borderRadius: 10,
+              }}
+            >
+              <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <Text style={globalStyles.text_label_heading}>
+                  Acceting Notes
+                </Text>
+              </View>
+              <View style={globalStyles.br_10}></View>
+              <TouchableOpacity onPress={pickImageAsync}>
+                <View style={[globalStyles.text_input, styles.row]}>
+                  <TextInput
+                    style={globalStyles.text_label_input_text}
+                    value="Select Img"
+                    editable={false}
+                    selectTextOnFocus={false}
+                  />
+
+                  <Image
+                    source={require("./assets/icons/a.png")} // Replace with your actual icon path
+                    style={styles.icon}
+                  />
+                </View>
+              </TouchableOpacity>
+
+              {showImage && (
+                <Image
+                  source={{ uri: selectedImage }}
+                  style={{ width: 100, height: 100, resizeMode: "contain" }}
+                />
+              )}
+              <Text style={globalStyles.text_label_input}>Body</Text>
+              <TextInput
+                style={[
+                  globalStyles.text_input,
+                  { height: 100, textAlignVertical: "top" },
+                ]}
+                value={body}
+                onChangeText={(e) => setBody(e)}
+                placeholder={"My Notes"}
+                multiline={true}
+                numberOfLines={4}
+              />
+
+              <View style={globalStyles.br_5}></View>
+              <View style={styles.section}>
+                <Checkbox
+                  style={styles.checkbox}
+                  value={isChecked}
+                  onValueChange={setChecked}
+                />
+                <Text style={styles.paragraph}>I agree with the accepting notes</Text>
+              </View>
+              <View style={globalStyles.br_5}></View>
+
+              <TouchableOpacity
+                style={globalStyles.btn_01}
+                onPress={addMyNotes}
+                disabled={true}
+              >
+                <Text style={globalStyles.text_label_btn01}>Add</Text>
+              </TouchableOpacity>
+
+              {/* <TouchableOpacity
+                style={[globalStyles.btn_01, { backgroundColor: "#FF5733" }]}
+                onPress={props.close}
+              >
+                <Text style={globalStyles.text_label_btn01}>Close</Text>
+              </TouchableOpacity> */}
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+  },
+  checkbox: {
+    margin: 8,
+  },
+  section: {
+    flexDirection: "row",
   },
 });

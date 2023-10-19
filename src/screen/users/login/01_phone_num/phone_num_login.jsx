@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext } from "react";
-import { Text, View, TextInput, Button, TouchableOpacity } from "react-native";
+import { Text, View, TextInput, Button, TouchableOpacity,ActivityIndicator } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +15,8 @@ import { firebaseConfig } from "../../../../../config/firebaseConfig";
 import { MyContext } from "../../../../../context/tokenContext";
 function User_phone_num_login({ navigation }) {
   const { text, setText, API_URL } = useContext(MyContext);
+  const [loader, setLoader] = useState(false);
+  
   const [userPhone, setUserPhone] = useState("");
   const auth = getAuth();
   const FirebaseRecaptchaRef = useRef(null);
@@ -24,6 +26,7 @@ function User_phone_num_login({ navigation }) {
   };
   const send_auth_number = async (phone_num) => {
     try {
+      setLoader(true);
       const provider = new PhoneAuthProvider(auth);
       const verification_id = await provider.verifyPhoneNumber(
         phone_num,
@@ -33,7 +36,10 @@ function User_phone_num_login({ navigation }) {
       if (verification_id) {
         navigation.navigate("user_otp", { verification_id });
       }
+      setLoader(false);
+
     } catch (error) {
+      setLoader(false);
       console.log(error);
     }
   };
@@ -55,8 +61,9 @@ function User_phone_num_login({ navigation }) {
           placeholder={"+52 1234 567 890"}
         />
 
-        <TouchableOpacity style={globalStyles.btn_01} onPress={onBtnClick}>
-          <Text style={globalStyles.text_label_btn01}>Log in</Text>
+        <TouchableOpacity style={globalStyles.btn_01} onPress={onBtnClick} disabled={loader}>
+
+          <Text style={globalStyles.text_label_btn01}>{loader?<ActivityIndicator size="large" color="#fff"/> : "Log in"}</Text>
         </TouchableOpacity>
         <View style={globalStyles.br_15}></View>
         <Link

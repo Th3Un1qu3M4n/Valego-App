@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
-import { Text, View, Image, TouchableOpacity } from "react-native"; // Import TouchableOpacity for the button
+import { Text, View, Image, TouchableOpacity,StyleSheet } from "react-native"; // Import TouchableOpacity for the button
 import { getAuth, signOut } from "firebase/auth";
 import { MyContext } from "../../../context/tokenContext";
-function Header() {
-  const { user, setRequest } = useContext(MyContext);
+function Header(props) {
+  const { user, setRequest,userLoggedInType } = useContext(MyContext);
 
   const auth = getAuth();
 
@@ -28,6 +28,23 @@ function Header() {
         paddingBottom: 15,
       }}
     >
+      {!(userLoggedInType=="Customer") && user && (
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            left: 0,
+            paddingHorizontal: 5,
+            paddingVertical: 7,
+            borderRadius: 7,
+          }}
+          onPress={signout}
+        >
+           <Image
+              source={require("../../../assets/icons/logout.png")} // Replace with your actual icon path
+              style={styles.icon}
+            />
+        </TouchableOpacity>
+      )}
       <Image
         resizeMode="contain"
         style={{
@@ -36,23 +53,17 @@ function Header() {
         }}
         source={require("../../../assets/images/v1.png")}
       />
-      {user && (
-        <TouchableOpacity
-          style={{
-            position: "absolute",
-            right: 0,
-            backgroundColor: "#fff",
-            paddingHorizontal: 15,
-            paddingVertical: 7,
-            borderRadius: 7,
-          }}
-          onPress={signout}
-        >
-          <Text>Sign out</Text>
-        </TouchableOpacity>
-      )}
+      
     </View>
   );
 }
-
+const styles = StyleSheet.create({
+  
+  icon: {
+    width: 22, // Set the width of your icon
+    height: 22, // Set the height of your icon
+    resizeMode: "contain",
+  },
+  
+});
 export default Header;

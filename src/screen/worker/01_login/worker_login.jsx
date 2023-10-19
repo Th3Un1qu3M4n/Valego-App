@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, TextInput, Button, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { Text, View, TextInput, Button,ActivityIndicator, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../global/header";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -11,6 +11,8 @@ function Worker_login({ navigation }) {
   const [valetUser, setValetUser] = useState("");
   const [pwd, setPwd] = useState("");
   const [hidePwd, setHidePwd] = useState(true);
+  const [loader, setLoader] = useState(false);
+
 
   const onBtnClick = () => {
     // navigation.navigate("worker_home", {});
@@ -26,6 +28,8 @@ function Worker_login({ navigation }) {
 
   const handleLogin = async ({ email, password }) => {
     try {
+      setLoader(true);
+
       const auth = getAuth();
       console.log(email, password);
       console.log(valetUser, pwd);
@@ -37,9 +41,12 @@ function Worker_login({ navigation }) {
         password
       );
       const user = userCredential.user;
+      setLoader(false);
 
       console.log("user", user);
     } catch (error) {
+      setLoader(false);
+
       alert("Error", error.message);
     }
   };
@@ -47,7 +54,7 @@ function Worker_login({ navigation }) {
     <SafeAreaView style={globalStyles.view_screen}>
       <Header />
       <View>
-        <Text style={globalStyles.text_label_input}>Valet Company</Text>
+        <Text style={globalStyles.text_label_input}>Valet Email</Text>
         <TextInput
           style={globalStyles.text_input}
           value={valetUser}
@@ -72,8 +79,8 @@ function Worker_login({ navigation }) {
           /></TouchableOpacity>
         </View>
 
-        <TouchableOpacity  style={globalStyles.btn_01} onPress={onBtnClick} >
-          <Text style={globalStyles.text_label_btn01}>Log in</Text>
+        <TouchableOpacity  style={globalStyles.btn_01} onPress={onBtnClick} disabled={loader}>
+          <Text style={globalStyles.text_label_btn01}>{loader?<ActivityIndicator size="large" color="#fff"/> : "Log in"}</Text>
         </TouchableOpacity>
         <Link style={globalStyles.link_01} to={{ screen: "user_login", params: {} }}>Sign in as User</Link>
         <Link style={globalStyles.link_01} to={{ screen: "contactus", params: {} }}>Contact us</Link>

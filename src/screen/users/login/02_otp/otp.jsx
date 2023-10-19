@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { Text, View, TextInput, Button, TouchableOpacity } from "react-native";
+import { Text, View, TextInput, Button, TouchableOpacity,ActivityIndicator } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,16 +14,22 @@ import { MyContext } from "../../../../../context/tokenContext";
 function User_otp({ route, navigation }) {
   const { setToken, API_URL } = useContext(MyContext);
   const [otp, setOtp] = useState("");
+  const [loader, setLoader] = useState(false);
+
   const { verification_id } = route.params;
 
   const auth = getAuth();
 
   const onBtnClick = () => {
+    
+
     verifyUser(otp);
+
   };
 
   const verifyUser = async (otp) => {
     try {
+      setLoader(true);
       const loggedInUser = auth.currentUser;
       if (loggedInUser) {
         // logout
@@ -36,9 +42,14 @@ function User_otp({ route, navigation }) {
       const token = await auth.currentUser.getIdToken(true);
       setToken(token);
       // console.log(user);
+    setLoader(false);
+
     } catch (error) {
       console.log(error);
+    setLoader(false);
+      
       alert("Invalid OTP");
+
     }
   };
   return (
@@ -53,8 +64,8 @@ function User_otp({ route, navigation }) {
           onChangeText={(e) => setOtp(e)}
           placeholder={"your password...."}
         />
-        <TouchableOpacity style={globalStyles.btn_01} onPress={onBtnClick}>
-          <Text style={globalStyles.text_label_btn01}>Confirm OTP</Text>
+        <TouchableOpacity style={globalStyles.btn_01} onPress={onBtnClick} disabled={loader}>
+          <Text style={globalStyles.text_label_btn01}>{loader?<ActivityIndicator size="large" color="#fff"/> : "Confirm OTP"}</Text>
         </TouchableOpacity>
         <View style={globalStyles.br_15}></View>
 

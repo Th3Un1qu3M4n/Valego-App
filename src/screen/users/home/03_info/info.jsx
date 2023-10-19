@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   rowText: {
-    flex: 1,
+    flex: 1, 
   },
   textInput: {
     padding: 8, // Adjust padding as needed

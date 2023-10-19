@@ -18,13 +18,28 @@ import Modal from "react-native-modal";
 import { MyContext } from "../../../../../context/tokenContext";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
+import { getAuth, signOut } from "firebase/auth";
 
 function User_setting() {
+  const { user, setRequest } = useContext(MyContext);
+
   const [showEditProfileModel, setShowEditProfileModel] = useState(false);
   const [showAddVehicleModel, setShowAddVehicleModel] = useState(false);
   const [showChangeVehicleModel, setShowChangeVehicleModel] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const auth = getAuth();
 
+  const signout = () => {
+    signOut(auth)
+      .then(() => {
+        console.log("User signed out successfully");
+        setRequest(null);
+        // You can add additional logic here after signout
+      })
+      .catch((error) => {
+        console.error("Error signing out:", error);
+      });
+  };
   return (
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
       <Header style={{ backgroundColor: "blue" }} />
@@ -122,6 +137,16 @@ function User_setting() {
           />
           <Text style={globalStyles.text_label_setting}>Privacy Terms</Text>
         </View>
+        <View style={styles.lineStyle} />
+        <TouchableWithoutFeedback onPress={signout}>
+          <View style={styles.row}>
+            <Image
+              source={require("../../../../../assets/icons/logout.png")} // Replace with your actual icon path
+              style={styles.icon}
+            />
+            <Text style={globalStyles.text_label_setting}>Sign out</Text>
+          </View>
+        </TouchableWithoutFeedback>
         <View style={styles.lineStyle} />
       </View>
       <View style={{ position: "absolute", bottom: 10, left: 20 }}>

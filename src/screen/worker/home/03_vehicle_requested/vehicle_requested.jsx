@@ -118,7 +118,7 @@ function Worker_vehicle_requested({ navigation }) {
             </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleDialPress}>
+        <TouchableOpacity onPress={handleDialPress} >
           <View
             style={[
               globalStyles.btn_01,

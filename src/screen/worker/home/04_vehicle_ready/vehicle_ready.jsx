@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
+  Linking
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -31,6 +32,10 @@ function Worker_vehicle_ready({ navigation }) {
   const auth = getAuth();
   const onBtnClick = () => {
     // navigation.navigate("user_waiting", {});
+  };
+  const handleDialPress = () => {
+    const phoneNumberToDial = `tel:${request.userId.phone}`;
+    Linking.openURL(phoneNumberToDial);
   };
   useEffect(() => {
     (async () => {
@@ -180,7 +185,7 @@ function Worker_vehicle_ready({ navigation }) {
 
         <View style={globalStyles.br_10}></View>
 
-        <TouchableOpacity onPress={onBtnClick}>
+        <TouchableOpacity onPress={handleDialPress}>
           <View
             style={[
               globalStyles.btn_01,
