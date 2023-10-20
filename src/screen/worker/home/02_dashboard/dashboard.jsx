@@ -9,6 +9,9 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   TouchableOpacity,
+  RefreshControl,
+  Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -18,13 +21,22 @@ import Modal from "react-native-modal";
 import { MyContext } from "../../../../../context/tokenContext";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
+
+let ScreenHeight = Dimensions.get("window").height;
+
 function Workerdashboard({ navigation }) {
   const { API_URL, getActiveRequests, setRequest, activeRequests } =
     useContext(MyContext);
   const [QRCode, setQRCode] = useState(false);
   const [showQRModel, setShowQRModel] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [qrLoading, setQrLoading] = useState(false);
   const [lstOfActiveRequests, setLstOfActiveRequests] = useState([]);
   const auth = getAuth();
+
+  const wait = (timeout) => {
+    return new Promise((resolve) => setTimeout(resolve, timeout));
+  };
 
   const getActiveRequestsData = async () => {
     try {
@@ -61,6 +73,12 @@ function Workerdashboard({ navigation }) {
     setShowQRModel(false);
   }, [activeRequests]);
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getActiveRequestsData();
+    setRefreshing(false);
+  }, []);
+
   useEffect(() => {
     getActiveRequestsData();
     // const fetchActiveRequestsData = async () => {
@@ -86,6 +104,7 @@ function Workerdashboard({ navigation }) {
 
   const showQR = async () => {
     try {
+      setQrLoading(true);
       const token = await auth.currentUser.getIdToken(true);
       const headers = {
         "Content-Type": "application/json",
@@ -97,9 +116,11 @@ function Workerdashboard({ navigation }) {
       });
       // console.log(response.data.qrCodeUrl);
       setQRCode(response.data.qrCodeUrl);
+      setQrLoading(false);
       setShowQRModel(true);
     } catch (error) {
       console.error("Error:", error);
+      setQrLoading(false);
     }
   };
   const onBtnClick = () => {
@@ -107,22 +128,22 @@ function Workerdashboard({ navigation }) {
   };
   return (
     <SafeAreaView style={globalStyles.view_screen}>
-      <Header/>
+      <Header />
       <Modal isVisible={showQRModel}>
-        <TouchableWithoutFeedback onPress={() => setShowQRModel(false)}>
-          <View
+        <TouchableOpacity onPress={() => setShowQRModel(false)}>
+          {/* <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <Image
-              style={{ width: 300, height: 300 }}
-              source={{
-                uri:
-                  QRCode ||
-                  "https://us.123rf.com/450wm/vectorina24/vectorina242112/vectorina24211200101/179624322-entry-without-a-qr-code-is-prohibited-a-barcode-in-a-crossed-out-red-circle-a-sign-of-prohibition.jpg",
-              }}
-            />
-          </View>
-        </TouchableWithoutFeedback>
+          > */}
+          <Image
+            style={{ width: 300, height: 300 }}
+            source={{
+              uri:
+                QRCode ||
+                "https://us.123rf.com/450wm/vectorina24/vectorina242112/vectorina24211200101/179624322-entry-without-a-qr-code-is-prohibited-a-barcode-in-a-crossed-out-red-circle-a-sign-of-prohibition.jpg",
+            }}
+          />
+          {/* </View> */}
+        </TouchableOpacity>
       </Modal>
       <ScrollView>
         <View style={[globalStyles.text_input, styles.row]}>
@@ -135,16 +156,39 @@ function Workerdashboard({ navigation }) {
             style={[globalStyles.text_label_input_text, { width: "75%" }]}
             placeholder="Search"
           />
-          <TouchableWithoutFeedback onPress={showQR}>
-            <Image
-              source={require("../../../../../assets/icons/qr.png")}
-              style={[styles.icon, { position: "absolute", right: 5 }]}
-            />
-          </TouchableWithoutFeedback>
+          {qrLoading ? (
+            <View
+              style={{
+                position: "absolute",
+                right: 5,
+              }}
+            >
+              <ActivityIndicator size="large" color="#1a344f" />
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={{
+                position: "absolute",
+                right: 5,
+              }}
+              onPress={showQR}
+            >
+              <Image
+                source={require("../../../../../assets/icons/qr.png")}
+                style={[styles.icon]}
+              />
+            </TouchableOpacity>
+          )}
         </View>
         <View style={globalStyles.br_5}></View>
 
-        <View style={styles.cardContainer}>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          contentContainerStyle={styles.cardContainer}
+          // style={styles.cardContainer}
+        >
           {activeRequests.map((item, index) => {
             return (
               <TouchableOpacity
@@ -169,7 +213,7 @@ function Workerdashboard({ navigation }) {
               </TouchableOpacity>
             );
           })}
-        </View>
+        </ScrollView>
         <View style={globalStyles.br_15}></View>
       </ScrollView>
     </SafeAreaView>
@@ -195,6 +239,9 @@ const styles = StyleSheet.create({
   },
 
   cardContainer: {
+    flex: 1,
+    height: ScreenHeight - 200,
+    padding: 10,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",

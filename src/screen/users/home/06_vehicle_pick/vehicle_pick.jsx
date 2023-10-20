@@ -9,7 +9,9 @@ import {
   TouchableWithoutFeedback,
   Alert,
   TouchableOpacity,
-  Linking
+  Linking,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -24,14 +26,36 @@ import * as ImagePicker from "expo-image-picker";
 import { getAuth } from "firebase/auth";
 
 function User_vehicle_pick({ navigation }) {
+  const { API_URL, request, setRequest, updateRequest } = useContext(MyContext);
   const [showCustomerNotesModel, setCustomerNotesModel] = useState(false);
-  const [showValetAcceptingNotesModel, setShowValetAcceptingNotesModel] = useState(false);
+  const [showValetAcceptingNotesModel, setShowValetAcceptingNotesModel] =
+    useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const auth = getAuth();
+  const getActiveRequestsData = async () => {
+    try {
+      const token = await auth.currentUser.getIdToken(true);
+      console.log("Updating the request", request._id);
+      updateRequest(token, request._id);
+    } catch (error) {
+      console.error("Error fetching company data:", error);
+    }
+  };
+
+  const wait = (timeout) => {
+    return new Promise((resolve) => setTimeout(resolve, timeout));
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getActiveRequestsData();
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
 
   const onBtnClick = () => {
     navigation.navigate("user_payment", {});
   };
 
-  const { API_URL, request, setRequest } = useContext(MyContext);
   // const auth = getAuth();
   // const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
@@ -131,14 +155,18 @@ function User_vehicle_pick({ navigation }) {
   return (
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
       <Header />
-      <View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <CustomerNotes
           showCustomerNotesModel={showCustomerNotesModel}
           close={() => setCustomerNotesModel(false)}
         />
-        <ValetAcceptingNotes 
-        showValetAcceptingNotesModel={showValetAcceptingNotesModel}
-        close={()=>setShowValetAcceptingNotesModel(false)}
+        <ValetAcceptingNotes
+          showValetAcceptingNotesModel={showValetAcceptingNotesModel}
+          close={() => setShowValetAcceptingNotesModel(false)}
         />
         <Text style={globalStyles.text_label_heading}>Vehicle: Parked</Text>
         <Text style={globalStyles.text_label_heading}>
@@ -236,7 +264,10 @@ function User_vehicle_pick({ navigation }) {
               </Text>
             </View>
           </TouchableWithoutFeedback>
-          <TouchableWithoutFeedback onPress={()=>setShowValetAcceptingNotesModel(true)} style={styles.col1}>
+          <TouchableWithoutFeedback
+            onPress={() => setShowValetAcceptingNotesModel(true)}
+            style={styles.col1}
+          >
             <View
               style={[
                 globalStyles.btn_01,
@@ -254,7 +285,7 @@ function User_vehicle_pick({ navigation }) {
             </View>
           </TouchableWithoutFeedback>
         </View>
-      </View>
+      </ScrollView>
       <View style={{ position: "absolute", bottom: 20, left: 20 }}>
         <Link
           style={globalStyles.link_01}
@@ -323,9 +354,8 @@ function CustomerNotes(props) {
 
     if (to_process) {
       try {
-        
         const formData = new FormData();
-        if(selectedImage){
+        if (selectedImage) {
           const uri = selectedImage;
           const uriParts = uri.split(".");
           const fileType = uriParts[uriParts.length - 1];
@@ -334,8 +364,8 @@ function CustomerNotes(props) {
             name: Date.now() + `.${fileType}`,
             type: `image/${fileType}`,
           });
-        }else{
-          const uri = API_URL+"/"+selectedImageOnline;
+        } else {
+          const uri = API_URL + "/" + selectedImageOnline;
           const uriParts = uri.split(".");
           const fileType = uriParts[uriParts.length - 1];
           formData.append("image", {
@@ -344,7 +374,7 @@ function CustomerNotes(props) {
             type: `image/${fileType}`,
           });
         }
-        
+
         formData.append("text", body);
 
         const headers = {
@@ -357,15 +387,17 @@ function CustomerNotes(props) {
           formData,
           { headers }
         );
+        console.log("response", response.data);
         updateRequest(token, request._id);
         setBody("");
         setSelectedImage(null);
-        selectedImageOnline(null);
+        setSelectedImageOnline(null);
         setShowImage(false);
         alert("Notes Updated!");
         props.close();
       } catch (error) {
         console.error("Error :", error.response);
+        console.error("Error :", error);
       }
     }
   };
@@ -469,7 +501,7 @@ function ValetAcceptingNotes(props) {
   useEffect(() => {
     setBody(request?.workerNotes?.text);
     setSelectedImage(request?.workerNotes?.image);
-  }, []);
+  }, [request]);
   return (
     <View>
       <Modal isVisible={props.showValetAcceptingNotesModel}>

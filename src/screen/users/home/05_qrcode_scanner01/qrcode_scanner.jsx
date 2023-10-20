@@ -21,11 +21,10 @@ import { MyContext } from "../../../../../context/tokenContext";
 import axios from "axios";
 
 function User_qrcode_scanner({ navigation }) {
+  const [scanned, setScanned] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
   const { API_URL, setRequest } = useContext(MyContext);
   const auth = getAuth();
-
-  const [hasPermission, setHasPermission] = useState(null);
-  const [scanned, setScanned] = useState(false);
 
   const getCurrentRequest = async () => {
     try {
@@ -55,45 +54,64 @@ function User_qrcode_scanner({ navigation }) {
     })();
   }, []);
 
-  const handleBarCodeScanned = async ({ type, data }) => {
-    
-   
-    try {
-      const token = await auth.currentUser.getIdToken(true);
-      console.log(data);
-      data = JSON.parse(data);
-      
-      if(data.request.requestId){
-        setScanned(true);
-      }
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      };
-      const response = await axios.post(
-        `${API_URL}/api/customer/accept/${data.request.requestId}`,
-        {},
-        { headers }
-      );
-      // setRequest(response.data.request);
-      axios
-        .get(`${API_URL}/api/customer/request/${response.data.request._id}`, {
-          headers,
-        })
-        .then((res) => {
-          setRequest(res.data);
-        })
-        .catch((err) => console.log(err));
-      console.log("API Response:", response.data);
-    } catch (e) {
-      console.log("Error:", e.response.data.error);
-      setScanned(false);
-    }
-
-    // onBtnClick();
-  };
+  useEffect(() => {
+    setScanned(false);
+  }, []);
 
   const renderCamera = () => {
+    // useEffect(() => {
+    //   const unsubscribe = navigation.addListener("focus", () => {
+    //     setScanned(false);
+    //   });
+
+    //   return unsubscribe;
+    // }, [navigation]);
+
+    const handleBarCodeScanned = async ({ type, data }) => {
+      setScanned(true);
+
+      // console.log("In Handle scanned", data);
+      // return;
+
+      try {
+        const token = await auth.currentUser.getIdToken(true);
+        console.log(data);
+        data = JSON.parse(data);
+
+        // if (data.request.requestId) {
+        //   setScanned(true);
+        // }
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        };
+        const response = await axios.post(
+          `${API_URL}/api/customer/accept/${data.request.requestId}`,
+          {},
+          { headers }
+        );
+        // setRequest(response.data.request);
+        axios
+          .get(`${API_URL}/api/customer/request/${response.data.request._id}`, {
+            headers,
+          })
+          .then((res) => {
+            setRequest(res.data);
+          })
+          .catch((err) => {
+            setScanned(true);
+            console.log(err);
+          });
+        console.log("API Response:", response.data);
+      } catch (e) {
+        console.log("error", e);
+        // console.log("Error:", e.response.data.error);
+        setScanned(false);
+      }
+
+      // onBtnClick();
+    };
+
     return (
       <View style={styles.container}>
         {hasPermission === null ? (
@@ -103,22 +121,41 @@ function User_qrcode_scanner({ navigation }) {
             Camera permission is not granted
           </Text>
         ) : (
-          <View
-            style={{
-              height: "100%",
-              width: Dimensions.get("window").width,
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <BarCodeScanner
-              onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          <View>
+            <TouchableOpacity
+              style={[
+                globalStyles.btn_01,
+                {
+                  zIndex: 10,
+                },
+              ]}
+              onPress={() => {
+                setScanned((prev) => !prev);
+              }}
+            >
+              <Text style={globalStyles.text_label_btn01}>Toggle Scanner</Text>
+            </TouchableOpacity>
+            <View
               style={{
                 height: "100%",
                 width: Dimensions.get("window").width,
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
               }}
-            />
+            >
+              {!scanned && (
+                <BarCodeScanner
+                  onBarCodeScanned={(e) => handleBarCodeScanned(e)}
+                  style={{
+                    marginVertical: 10,
+                    zIndex: 0,
+                    height: Dimensions.get("window").height,
+                    width: Dimensions.get("window").width,
+                  }}
+                />
+              )}
+            </View>
           </View>
         )}
       </View>
@@ -143,7 +180,7 @@ function User_qrcode_scanner({ navigation }) {
     <SafeAreaView style={globalStyles.view_screen}>
       <View>
         <Header style={styles.overlay} />
-        <View style={{ height: Dimensions.get("window").height - 250 }}>
+        <View style={{ height: Dimensions.get("window").height - 200 }}>
           {renderCamera()}
         </View>
 
@@ -154,7 +191,7 @@ function User_qrcode_scanner({ navigation }) {
         <Text style={globalStyles.text_label_input}>
           Keep the camera pointing towards the code for its correct reading
         </Text>
-        <View style={globalStyles.br_10}></View>
+        {/* <View style={globalStyles.br_10}></View> */}
         <Link
           style={globalStyles.link_01}
           to={{ screen: "contactus", params: {} }}

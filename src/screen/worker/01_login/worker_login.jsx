@@ -1,11 +1,19 @@
 import React, { useState } from "react";
-import { Text, View, TextInput, Button,ActivityIndicator, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  TextInput,
+  Button,
+  ActivityIndicator,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../global/header";
 import { SafeAreaView } from "react-native-safe-area-context";
 import globalStyles from "../../global/globalStyles";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-
 
 function Worker_login({ navigation }) {
   const [valetUser, setValetUser] = useState("");
@@ -13,12 +21,9 @@ function Worker_login({ navigation }) {
   const [hidePwd, setHidePwd] = useState(true);
   const [loader, setLoader] = useState(false);
 
-
   const onBtnClick = () => {
     // navigation.navigate("worker_home", {});
     // navigation.navigate("admin_home", {});
-  
-
 
     handleLogin({
       email: valetUser, // Replace with your email
@@ -33,7 +38,6 @@ function Worker_login({ navigation }) {
       const auth = getAuth();
       console.log(email, password);
       console.log(valetUser, pwd);
-
 
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -72,18 +76,43 @@ function Worker_login({ navigation }) {
             onChangeText={(e) => setPwd(e)}
             placeholder="******"
           />
-          <TouchableOpacity onPress={()=>setHidePwd(!hidePwd)}>
-          <Image
-            source={hidePwd? require("../../../../assets/icons/es.png"):require("../../../../assets/icons/eh.png")} // Replace with your actual icon path
-            style={styles.icon}
-          /></TouchableOpacity>
+          <TouchableOpacity onPress={() => setHidePwd(!hidePwd)}>
+            <Image
+              source={
+                hidePwd
+                  ? require("../../../../assets/icons/es.png")
+                  : require("../../../../assets/icons/eh.png")
+              } // Replace with your actual icon path
+              style={styles.icon}
+            />
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity  style={globalStyles.btn_01} onPress={onBtnClick} disabled={loader}>
-          <Text style={globalStyles.text_label_btn01}>{loader?<ActivityIndicator size="large" color="#fff"/> : "Log in"}</Text>
+        <TouchableOpacity
+          style={globalStyles.btn_01}
+          onPress={onBtnClick}
+          disabled={loader}
+        >
+          <Text style={globalStyles.text_label_btn01}>
+            {loader ? (
+              <ActivityIndicator size="large" color="#fff" />
+            ) : (
+              "Log in"
+            )}
+          </Text>
         </TouchableOpacity>
-        <Link style={globalStyles.link_01} to={{ screen: "user_login", params: {} }}>Sign in as User</Link>
-        <Link style={globalStyles.link_01} to={{ screen: "contactus", params: {} }}>Contact us</Link>
+        <Link
+          style={globalStyles.link_01}
+          to={{ screen: "user_login", params: {} }}
+        >
+          Sign in as User
+        </Link>
+        <Link
+          style={globalStyles.link_01}
+          to={{ screen: "contactus", params: {} }}
+        >
+          Contact us
+        </Link>
       </View>
     </SafeAreaView>
   );

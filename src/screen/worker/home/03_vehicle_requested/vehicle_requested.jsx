@@ -1,4 +1,4 @@
-import React, { useState, useContext , useEffect} from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Text,
   View,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Linking,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -19,6 +20,8 @@ import { MyContext } from "../../../../../context/tokenContext";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 import Modal from "react-native-modal";
+
+let ScreenHeight = Dimensions.get("window").height;
 
 function Worker_vehicle_requested({ navigation }) {
   const { API_URL, request, setRequest, updateRequest } = useContext(MyContext);
@@ -55,9 +58,9 @@ function Worker_vehicle_requested({ navigation }) {
     }
   };
   return (
-    <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
-      <Header />
-      <ScrollView style={{ height: "100%" }}>
+    <SafeAreaView style={[globalStyles.view_screen]}>
+      <ScrollView style={{ height: ScreenHeight - 50 }}>
+        <Header />
         <ViewNotes
           showViewNotesModel={showViewNotesModel}
           type={showViewNotesType}
@@ -139,7 +142,7 @@ function Worker_vehicle_requested({ navigation }) {
             </TouchableOpacity>
           )}
           <View style={globalStyles.br_5}></View>
-          <TouchableOpacity  onPress={() => setShowValetNotesModel(true)}>
+          <TouchableOpacity onPress={() => setShowValetNotesModel(true)}>
             <View
               style={[
                 globalStyles.btn_01,
@@ -258,7 +261,6 @@ function ViewNotes(props) {
   const [selectedImage, setSelectedImage] = useState(null);
   useEffect(() => {
     if (props.showViewNotesModel) {
-      
       if (props.type === "Customer") {
         setBody(request?.customerNotes?.text);
         setSelectedImage(request?.customerNotes?.image);
@@ -350,8 +352,6 @@ function ValetNotes(props) {
 
     if (to_process) {
       try {
-        
-
         const headers = {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -359,7 +359,7 @@ function ValetNotes(props) {
 
         const response = await axios.post(
           `${API_URL}/api/worker/updateParkingNotes/${request._id}`,
-          {"comment":body},
+          { comment: body },
           { headers }
         );
         updateRequest(token, request._id);
@@ -397,7 +397,7 @@ function ValetNotes(props) {
                 </Text>
               </View>
               <View style={globalStyles.br_10}></View>
-              
+
               <Text style={globalStyles.text_label_input}>Body</Text>
               <TextInput
                 style={[
@@ -433,7 +433,6 @@ function ValetNotes(props) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   img: {

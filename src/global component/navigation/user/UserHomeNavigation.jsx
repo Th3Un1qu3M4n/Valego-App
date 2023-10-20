@@ -28,7 +28,7 @@ function UserHomeNavigation() {
       )}
       {request && request.status === "Accepted" && (
         <Stack.Screen
-          name="user_vehicle_pick"
+          name="user_vehicle_pick_nav"
           component={UserPaymentNavigation}
         />
       )}

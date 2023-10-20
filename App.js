@@ -3,7 +3,17 @@ import { useFonts } from "expo-font";
 import { MyContext } from "./context/tokenContext";
 import { StatusBar } from "expo-status-bar";
 import Checkbox from "expo-checkbox";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import UserTabNavigation from "./src/global component/navigation/user/UserTabNavigation";
 import UserAuthNavigation from "./src/global component/navigation/user/UserAuthNavigation";
@@ -17,6 +27,8 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import globalStyles from "./src/screen/global/globalStyles";
+import * as ImagePicker from "expo-image-picker";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -77,6 +89,7 @@ export default function App() {
   // Notification
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
+  const [showAcceptingNotes, setShowAcceptingNotes] = useState(false);
 
   const notificationListener = useRef();
   const responseListener = useRef();
@@ -107,7 +120,7 @@ export default function App() {
   };
 
   const serviceRequested = async (_id) => {
-    alert("1");
+    console.log("serviceRequested", _id);
     const auth = getAuth();
     const token = await auth.currentUser.getIdToken(true);
     const headers = {
@@ -117,12 +130,13 @@ export default function App() {
     axios
       .get(`${API_URL}/api/customer/request/${_id}`, { headers })
       .then((res) => {
-        // setRequest(res.data);
+        setRequest(res.data);
         // console.log(res.data);
-        const vehicle = res.data.vehicleId;
+        // const vehicle = res.data.vehicleId;
+        setShowAcceptingNotes(true);
         // Work here
-        alert("2");
-        AcceptingNotes(token, API_URL, res.data);
+        // alert("2");
+        // AcceptingNotes(token, API_URL, res.data);
         // Alert.alert(
         //   "Parking Request",
         //   `${vehicle.vehicleName} - ${vehicle.plates}`,
@@ -203,6 +217,10 @@ export default function App() {
               // }
               // customerRequested
               if (notification.request.content.data.type === "vehicleReady") {
+                Alert.alert(
+                  "Vehicle is ready",
+                  "The vehicle is ready, Please pickup the vehicle within 5 minutes."
+                );
                 updateRequest(
                   user.accessToken,
                   notification.request.content.data.requestId
@@ -228,7 +246,6 @@ export default function App() {
               } else if (
                 notification.request.content.data.type === "serviceRequested"
               ) {
-                alert("0");
                 serviceRequested(notification.request.content.data.requestId);
               } else if (
                 notification.request.content.data.type === "customerRequested"
@@ -354,10 +371,20 @@ export default function App() {
           getActiveRequests,
           activeRequests,
           updateRequest,
-          userLoggedInType
+          userLoggedInType,
         }}
       >
         <NavigationContainer>
+          {showAcceptingNotes && (
+            <AcceptingNotes
+              token={token}
+              API_URL={API_URL}
+              request={request}
+              updateRequest={updateRequest}
+              showAcceptingNotes={showAcceptingNotes}
+              setShowAcceptingNotes={setShowAcceptingNotes}
+            />
+          )}
           {user && userLoggedInType == "Customer" ? (
             <UserTabNavigation />
           ) : user && userLoggedInType == "Worker" ? (
@@ -373,14 +400,21 @@ export default function App() {
   );
 }
 
-function AcceptingNotes(token, API_URL, request) {
+function AcceptingNotes({
+  token,
+  API_URL,
+  request,
+  updateRequest,
+  showAcceptingNotes,
+  setShowAcceptingNotes,
+}) {
+  console.log("request accepting", request);
   // const { token, API_URL, request, updateRequest } = useContext(MyContext);
 
   // const [vehicle, setVehicle] = useState("");
   // const [vehicleError, setVehicleError] = useState(false);
   const [isChecked, setChecked] = useState(false);
-  const [showModel, setShowModel] = useState(true);
-
+  // const [showModel, setShowModel] = useState(true);
 
   const [body, setBody] = useState("");
 
@@ -426,14 +460,16 @@ function AcceptingNotes(token, API_URL, request) {
     if (to_process) {
       try {
         const formData = new FormData();
-        const uri = selectedImage;
-        const uriParts = uri.split(".");
-        const fileType = uriParts[uriParts.length - 1];
-        formData.append("image", {
-          uri,
-          name: Date.now() + `.${fileType}`,
-          type: `image/${fileType}`,
-        });
+        if (selectedImage) {
+          const uri = selectedImage;
+          const uriParts = uri.split(".");
+          const fileType = uriParts[uriParts.length - 1];
+          formData.append("image", {
+            uri,
+            name: Date.now() + `.${fileType}`,
+            type: `image/${fileType}`,
+          });
+        }
 
         formData.append("text", body);
 
@@ -450,105 +486,139 @@ function AcceptingNotes(token, API_URL, request) {
         updateRequest(token, request._id);
         setBody("");
         setSelectedImage(null);
-        selectedImageOnline(null);
         setShowImage(false);
         alert("Notes Updated!");
-        setShowModel(false);
+        setShowAcceptingNotes(false);
         // props.close();
       } catch (error) {
-        console.error("Error :", error.response);
+        console.error("Error :", error);
+        console.log("Error :", error?.response);
+        Alert.alert("Error", error?.response?.data?.error);
+        // setShowAcceptingNotes(false);
       }
     }
   };
   return (
     <View>
-      <Modal isVisible={showModel}>
-        <TouchableWithoutFeedback>
+      <Modal isVisible={showAcceptingNotes}>
+        {/* // {console.log("showAcceptingNotes State", showAcceptingNotes)} */}
+        {/* // <View> */}
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <View
             style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
+              backgroundColor: "#fff",
+              width: "95%",
+              paddingHorizontal: 15,
+              paddingVertical: 15,
+              borderRadius: 10,
             }}
           >
             <View
               style={{
-                backgroundColor: "#fff",
-                width: "95%",
-                paddingHorizontal: 15,
-                paddingVertical: 15,
-                borderRadius: 10,
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
               }}
             >
-              <View style={{ justifyContent: "center", alignItems: "center" }}>
-                <Text style={globalStyles.text_label_heading}>
-                  Acceting Notes
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  marginVertical: "auto",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
+                <Image
+                  source={{
+                    uri: API_URL + "/" + request.vehicleId.vehicleImage,
+                  }} // Replace with your actual icon path
+                  style={{ width: 120, height: 120 }}
+                />
+                <Text style={globalStyles.text_label_input_text}>
+                  {request.vehicleId.vehicleName} | {request.vehicleId.plates}
                 </Text>
               </View>
-              <View style={globalStyles.br_10}></View>
-              <TouchableOpacity onPress={pickImageAsync}>
-                <View style={[globalStyles.text_input, styles.row]}>
-                  <TextInput
-                    style={globalStyles.text_label_input_text}
-                    value="Select Img"
-                    editable={false}
-                    selectTextOnFocus={false}
-                  />
+              <Text style={globalStyles.text_label_heading}>
+                Add Accepting Notes
+              </Text>
+            </View>
+            <View style={globalStyles.br_10}></View>
+            <TouchableOpacity onPress={pickImageAsync}>
+              <View style={[globalStyles.text_input, styles.row]}>
+                <TextInput
+                  style={globalStyles.text_label_input_text}
+                  value="Select Img"
+                  editable={false}
+                  selectTextOnFocus={false}
+                />
 
-                  <Image
-                    source={require("./assets/icons/a.png")} // Replace with your actual icon path
-                    style={styles.icon}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              {showImage && (
                 <Image
-                  source={{ uri: selectedImage }}
-                  style={{ width: 100, height: 100, resizeMode: "contain" }}
+                  source={require("./assets/icons/a.png")} // Replace with your actual icon path
+                  style={styles.icon}
                 />
-              )}
-              <Text style={globalStyles.text_label_input}>Body</Text>
-              <TextInput
-                style={[
-                  globalStyles.text_input,
-                  { height: 100, textAlignVertical: "top" },
-                ]}
-                value={body}
-                onChangeText={(e) => setBody(e)}
-                placeholder={"My Notes"}
-                multiline={true}
-                numberOfLines={4}
-              />
-
-              <View style={globalStyles.br_5}></View>
-              <View style={styles.section}>
-                <Checkbox
-                  style={styles.checkbox}
-                  value={isChecked}
-                  onValueChange={setChecked}
-                />
-                <Text style={styles.paragraph}>I agree with the accepting notes</Text>
               </View>
-              <View style={globalStyles.br_5}></View>
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                style={globalStyles.btn_01}
-                onPress={addMyNotes}
-                disabled={true}
-              >
-                <Text style={globalStyles.text_label_btn01}>Add</Text>
-              </TouchableOpacity>
+            {showImage && (
+              <Image
+                source={{ uri: selectedImage }}
+                style={{ width: 100, height: 100, resizeMode: "contain" }}
+              />
+            )}
+            <Text style={globalStyles.text_label_input}>Body</Text>
+            <TextInput
+              style={[
+                globalStyles.text_input,
+                { height: 100, textAlignVertical: "top" },
+              ]}
+              value={body}
+              onChangeText={(e) => setBody(e)}
+              placeholder={"My Notes"}
+              multiline={true}
+              numberOfLines={4}
+            />
 
-              {/* <TouchableOpacity
+            <View style={globalStyles.br_5}></View>
+            <View style={styles.section}>
+              <Checkbox
+                style={styles.checkbox}
+                value={isChecked}
+                onValueChange={setChecked}
+              />
+              <Text style={styles.paragraph}>
+                I agree with the accepting notes
+              </Text>
+            </View>
+            <View style={globalStyles.br_5}></View>
+
+            <TouchableOpacity
+              style={[
+                globalStyles.btn_01,
+                { backgroundColor: isChecked ? "#1a344f" : "#ccc" },
+              ]}
+              onPress={addMyNotes}
+              disabled={isChecked ? false : true}
+            >
+              <Text style={globalStyles.text_label_btn01}>Add</Text>
+            </TouchableOpacity>
+
+            {/* <TouchableOpacity
                 style={[globalStyles.btn_01, { backgroundColor: "#FF5733" }]}
                 onPress={props.close}
               >
                 <Text style={globalStyles.text_label_btn01}>Close</Text>
               </TouchableOpacity> */}
-            </View>
           </View>
-        </TouchableWithoutFeedback>
+        </View>
+        {/* // </View> */}
       </Modal>
     </View>
   );
@@ -566,5 +636,12 @@ const styles = StyleSheet.create({
   },
   section: {
     flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });

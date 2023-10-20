@@ -9,6 +9,8 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Linking,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -16,11 +18,33 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import globalStyles from "../../../global/globalStyles";
 import { MyContext } from "../../../../../context/tokenContext";
 import Modal from "react-native-modal";
+import { getAuth } from "firebase/auth";
 
 function User_in_process({ navigation }) {
-  const { request } = useContext(MyContext);
+  const { request, updateRequest } = useContext(MyContext);
   const [showViewNotesModel, setShowViewNotesModel] = useState(false);
   const [showViewNotesType, setShowViewNotesType] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const auth = getAuth();
+
+  const wait = (timeout) => {
+    return new Promise((resolve) => setTimeout(resolve, timeout));
+  };
+
+  const getActiveRequestsData = async () => {
+    try {
+      const token = await auth.currentUser.getIdToken(true);
+      updateRequest(token, request._id);
+    } catch (error) {
+      console.error("Error fetching company data:", error);
+    }
+  };
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getActiveRequestsData();
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
 
   // console.log(request);
   const handleDialPress = () => {
@@ -33,11 +57,15 @@ function User_in_process({ navigation }) {
   return (
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
       <Header />
-      <View>
-        <ViewNotes 
-        showViewNotesModel={showViewNotesModel}
-        type = {showViewNotesType}
-        close={()=>setShowViewNotesModel(false)}
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <ViewNotes
+          showViewNotesModel={showViewNotesModel}
+          type={showViewNotesType}
+          close={() => setShowViewNotesModel(false)}
         />
         <Text style={globalStyles.text_label_heading}>
           Vehicle in process to deliver{" "}
@@ -68,12 +96,12 @@ function User_in_process({ navigation }) {
               })}{" "}
             </Text>
             <Text style={globalStyles.text_label_card}>
-              Price: ${request.workerId.companyId.totalChargeAmount / 100} MXN{" "}
+              Price: ${request.amount / 100} MXN{" "}
             </Text>
           </View>
         </View>
 
-        <TouchableOpacity onPress={handleDialPress} >
+        <TouchableOpacity onPress={handleDialPress}>
           <View
             style={[
               globalStyles.btn_01,
@@ -98,7 +126,10 @@ function User_in_process({ navigation }) {
         <View style={styles.row}>
           <TouchableWithoutFeedback
             style={styles.col1}
-            onPress={() => {setShowViewNotesType("Customer");setShowViewNotesModel(true);}}
+            onPress={() => {
+              setShowViewNotesType("Customer");
+              setShowViewNotesModel(true);
+            }}
           >
             <View
               style={[
@@ -116,7 +147,13 @@ function User_in_process({ navigation }) {
               </Text>
             </View>
           </TouchableWithoutFeedback>
-          <TouchableWithoutFeedback onPress={()=>{setShowViewNotesType("Valet");setShowViewNotesModel(true);}} style={styles.col1}>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              setShowViewNotesType("Valet");
+              setShowViewNotesModel(true);
+            }}
+            style={styles.col1}
+          >
             <View
               style={[
                 globalStyles.btn_01,
@@ -135,7 +172,7 @@ function User_in_process({ navigation }) {
           </TouchableWithoutFeedback>
         </View>
         {/*  */}
-      </View>
+      </ScrollView>
       <View style={{ position: "absolute", bottom: 10, left: 20 }}>
         <Link
           style={globalStyles.link_01}
@@ -163,15 +200,13 @@ function ViewNotes(props) {
   const [selectedImage, setSelectedImage] = useState(null);
   useEffect(() => {
     if (props.showViewNotesModel) {
-      
-      if(props.type === "Customer"){
+      if (props.type === "Customer") {
         setBody(request.customerNotes.text);
         setSelectedImage(request.customerNotes.image);
-      }else{
+      } else {
         setBody(request?.workerNotes?.text);
         setSelectedImage(request?.workerNotes?.image);
       }
-      
     }
   }, [props.showViewNotesModel]);
   return (
@@ -196,8 +231,9 @@ function ViewNotes(props) {
             >
               <View style={{ justifyContent: "center", alignItems: "center" }}>
                 <Text style={globalStyles.text_label_heading}>
-                  {props.type=="Customer"? "Customer Notes":"Valet Accepting Notes"}
-                  
+                  {props.type == "Customer"
+                    ? "Customer Notes"
+                    : "Valet Accepting Notes"}
                 </Text>
               </View>
               <View style={globalStyles.br_10}></View>

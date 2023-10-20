@@ -10,7 +10,9 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
-  Linking
+  Linking,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -25,11 +27,33 @@ import { getAuth } from "firebase/auth";
 import axios from "axios";
 
 function Worker_vehicle_ready({ navigation }) {
-  const { request, setRequest, API_URL } = useContext(MyContext);
+  const { request, setRequest, API_URL, updateRequest } = useContext(MyContext);
   const [showQRModel, setShowQRModel] = useState(false);
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const auth = getAuth();
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const getActiveRequestsData = async () => {
+    try {
+      const token = await auth.currentUser.getIdToken(true);
+      console.log("Updating the request", request._id);
+      updateRequest(token, request._id);
+    } catch (error) {
+      console.error("Error fetching company data:", error);
+    }
+  };
+
+  const wait = (timeout) => {
+    return new Promise((resolve) => setTimeout(resolve, timeout));
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getActiveRequestsData();
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
   const onBtnClick = () => {
     // navigation.navigate("user_waiting", {});
   };
@@ -51,7 +75,8 @@ function Worker_vehicle_ready({ navigation }) {
   const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
     const data0 = JSON.parse(data);
-
+    // console.log("completing request with id", data0.requestId);
+    // return;
     try {
       const token = await auth.currentUser.getIdToken(true);
 
@@ -59,10 +84,10 @@ function Worker_vehicle_ready({ navigation }) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       };
-
+      console.log("completing request with id", data0.requestId);
       axios
         .post(
-          `${API_URL}/api/worker/confirm/${request.requestId}`,
+          `${API_URL}/api/worker/confirm/${data0.requestId}`,
           { requestId: request.requestId },
           {
             headers,
@@ -70,15 +95,24 @@ function Worker_vehicle_ready({ navigation }) {
         )
         .then((res) => {
           setRequest(null);
+          setScanned(false);
           AsyncStorage.removeItem("Valego_request");
         })
-        .catch((err) => console.log(err.response.data));
+        .catch((err) => {
+          console.log(err.response.data);
+          setScanned(false);
+        });
     } catch (e) {
       console.log("Error:", e);
+      setScanned(false);
     }
   };
 
   const renderCamera = () => {
+    useEffect(() => {
+      setScanned(false);
+    }, []);
+
     return (
       <View style={styles.container}>
         {hasPermission === null ? (
@@ -138,7 +172,11 @@ function Worker_vehicle_ready({ navigation }) {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      <View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Text style={globalStyles.text_label_heading}>
           Vehicle Ready to be picked up
         </Text>
@@ -171,6 +209,7 @@ function Worker_vehicle_ready({ navigation }) {
                 minute: "2-digit",
               })}
             </Text>
+            {console.log(request)}
             {!request?.isPaymentMade && (
               <Text style={globalStyles.text_label_card}>
                 Amount to Receive:{" "}
@@ -256,9 +295,9 @@ function Worker_vehicle_ready({ navigation }) {
             </Text>
           </View>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
       <View style={{ position: "absolute", bottom: 10, left: 20 }}>
-        <TouchableOpacity onPress={() => setRequest(null)}>
+        {/* <TouchableOpacity onPress={() => setRequest(null)}>
           <View
             style={[
               {
@@ -288,7 +327,7 @@ function Worker_vehicle_ready({ navigation }) {
               Home
             </Text>
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         {/* <Link
           style={globalStyles.link_01}
           to={{ screen: "contactus", params: {} }}
