@@ -130,7 +130,14 @@ function Workerdashboard({ navigation }) {
     <SafeAreaView style={globalStyles.view_screen}>
       <Header />
       <Modal isVisible={showQRModel}>
-        <TouchableOpacity onPress={() => setShowQRModel(false)}>
+        <TouchableOpacity
+          onPress={() => setShowQRModel(false)}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           {/* <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           > */}
@@ -196,6 +203,21 @@ function Workerdashboard({ navigation }) {
                 key={index}
                 onPress={() => setSelectedRequest(item._id)}
               >
+                {/* Red dot on top right corner */}
+                {item.status == "CarRequested" && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      zIndex: 1,
+                      top: 15,
+                      right: 15,
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      backgroundColor: "#ff0000",
+                    }}
+                  ></View>
+                )}
                 <Image
                   // source={require("../../../../../assets/images/car.png")}
                   source={{ uri: `${API_URL}/${item.vehicleId?.vehicleImage}` }}

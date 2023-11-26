@@ -4,6 +4,7 @@ import { MyContext } from "./context/tokenContext";
 import { StatusBar } from "expo-status-bar";
 import Checkbox from "expo-checkbox";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   Modal,
@@ -75,6 +76,7 @@ async function registerForPushNotificationsAsync() {
   return token;
 }
 export default function App() {
+  const [appLoading, setAppLoading] = useState(true);
   const [token, setToken] = useState("");
   const [userLoggedInType, setUserLoggedInType] = useState("none");
   const [user, setUser] = useState(null);
@@ -153,6 +155,41 @@ export default function App() {
       .catch((err) => console.log(err));
   };
 
+  const showCustomerRequestedReceieved = async (_id) => {
+    try {
+      const auth = getAuth();
+      const token = await auth.currentUser.getIdToken(true);
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+      const res = await axios.get(`${API_URL}/api/customer/request/${_id}`, {
+        headers,
+      });
+      const vehicle = res.data.vehicleId;
+
+      Alert.alert(
+        "Parking Request",
+        `${vehicle.vehicleName} - ${vehicle.plates}`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              getActiveRequests(token);
+            },
+          },
+        ]
+      );
+    } catch (err) {
+      console.log(err);
+      if (err?.response?.data?.error) {
+        Alert.alert("Error", err?.response?.data?.error);
+      } else {
+        Alert.alert("Error", "Something went wrong");
+      }
+    }
+  };
+
   const updateRequest = async (userToken, _id) => {
     console.log("in updateRequest");
     const auth = getAuth();
@@ -175,6 +212,12 @@ export default function App() {
     const auth = getAuth();
     AsyncStorage.getItem("Valego_request").then((value) => {
       // alert("out value");
+
+      const user = auth.currentUser;
+      // if (!user) {
+      //   setAppLoading(false);
+      //   return;
+      // }
 
       if (value) {
         // alert("in value");
@@ -203,124 +246,142 @@ export default function App() {
     const unsubscribeFromAuthStatuChanged = onAuthStateChanged(
       auth,
       async (user) => {
-        if (user) {
-          // GET API call to get user data send access token
-          const PushToken = await registerForPushNotificationsAsync();
-          setExpoPushToken(PushToken);
-          notificationListener.current =
-            Notifications.addNotificationReceivedListener((notification) => {
-              setNotification(notification);
-              console.log(notification);
-              // // serviceRequested
-              // if(notification.request.content.data.type === "vehicleReady"){
-              //   getActiveRequests(user.accessToken);
-              // }
-              // customerRequested
-              if (notification.request.content.data.type === "vehicleReady") {
-                Alert.alert(
-                  "Vehicle is ready",
-                  "The vehicle is ready, Please pickup the vehicle within 5 minutes."
-                );
-                updateRequest(
-                  user.accessToken,
-                  notification.request.content.data.requestId
-                );
-              }
-              if (
-                notification.request.content.data.type === "serviceDelivered"
-              ) {
-                Alert.alert(
-                  "Thank you for using Valego",
-                  "Looking forward to serve you again",
-                  [
-                    {
-                      text: "OK",
-                      onPress: () => {
-                        setRequest(null);
-                        AsyncStorage.removeItem("Valego_request");
+        setAppLoading(true);
+        try {
+          if (user) {
+            // GET API call to get user data send access token
+            const PushToken = await registerForPushNotificationsAsync();
+            setExpoPushToken(PushToken);
+            notificationListener.current =
+              Notifications.addNotificationReceivedListener((notification) => {
+                setNotification(notification);
+                console.log(notification);
+                // // serviceRequested
+                // if(notification.request.content.data.type === "vehicleReady"){
+                //   getActiveRequests(user.accessToken);
+                // }
+                // customerRequested
+                if (notification.request.content.data.type === "vehicleReady") {
+                  Alert.alert(
+                    "Vehicle is ready",
+                    "The vehicle is ready, Please pickup the vehicle within 5 minutes."
+                  );
+                  updateRequest(
+                    user.accessToken,
+                    notification.request.content.data.requestId
+                  );
+                }
+                if (
+                  notification.request.content.data.type === "serviceDelivered"
+                ) {
+                  Alert.alert(
+                    "Thank you for using Valego",
+                    "Looking forward to serve you again",
+                    [
+                      {
+                        text: "OK",
+                        onPress: () => {
+                          setRequest(null);
+                          AsyncStorage.removeItem("Valego_request");
+                        },
                       },
-                    },
-                  ]
-                );
-                // Thank you for using valego
-              } else if (
-                notification.request.content.data.type === "serviceRequested"
-              ) {
-                serviceRequested(notification.request.content.data.requestId);
-              } else if (
-                notification.request.content.data.type === "customerRequested"
-              ) {
-                updateRequest(
-                  user.accessToken,
-                  notification.request.content.data.requestId
-                );
-                console.log(request);
+                    ]
+                  );
+                  // Thank you for using valego
+                } else if (
+                  notification.request.content.data.type === "serviceRequested"
+                ) {
+                  serviceRequested(notification.request.content.data.requestId);
+                } else if (
+                  notification.request.content.data.type === "customerRequested"
+                ) {
+                  // updateRequest(
+                  //   user.accessToken,
+                  //   notification.request.content.data.requestId
+                  // );
+                  // console.log(request);
+                  showCustomerRequestedReceieved(
+                    notification.request.content.data.requestId
+                  );
+                }
+              });
+            responseListener.current =
+              Notifications.addNotificationResponseReceivedListener(
+                (response) => {
+                  // console.log(response);
+                }
+              );
+            console.log(user.accessToken);
+            const headers = {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${user.accessToken}`,
+            };
+            setToken(user.accessToken);
+            console.log("Sending Push Token", PushToken.data);
+            axios
+              .post(
+                `${API_URL}/api/auth/pushtoken`,
+                { pushToken: PushToken.data },
+                { headers }
+              )
+              .then((res) => {
+                const userData = res.data._doc;
+                console.log("userData", userData);
+                console.log("userData.userType", userData.userType);
+                if (userData.userType === "Customer") {
+                  console.log("userData.name", userData.name == "");
+                  if (userData.name == "") {
+                    console.log("Should Show Profile Screen");
+                    setIsUserReg(false);
+                  } else {
+                    console.log("Should Not Show Profile Screen");
+                    setIsUserReg(true);
+                  }
+                }
+                setUserLoggedInType(userData.userType);
+                setUser({
+                  uid: userData.uid,
+                  id: userData._id,
+                  Phone: userData?.phone,
+                  name: userData?.name,
+                  email: userData?.email,
+                  companyId: userData?.companyId,
+                  pushtoken: expoPushToken?.data,
+                  vehicle: userData?.vehicle,
+                });
+                setAppLoading(false);
+              })
+              .catch(async (err) => {
+                console.log(err);
+                const auth = getAuth();
+                await auth.signOut();
+                Alert.alert("Error", "Invalid Email or Password");
+                setAppLoading(false);
+              });
+            AsyncStorage.getItem("Valego_request").then((value) => {
+              if (value) {
+                const value0 = JSON.parse(value);
+                // setRequest(value0);
+                axios
+                  .get(`${API_URL}/api/customer/request/${value0._id}`, {
+                    headers,
+                  })
+                  .then((res) => {
+                    setRequest(res.data);
+                  })
+                  .catch((err) => console.log(err));
               }
             });
-          responseListener.current =
-            Notifications.addNotificationResponseReceivedListener(
-              (response) => {
-                // console.log(response);
-              }
-            );
-          console.log(user.accessToken);
-          const headers = {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user.accessToken}`,
-          };
-          setToken(user.accessToken);
-          axios
-            .post(
-              `${API_URL}/api/auth/pushtoken`,
-              { pushToken: PushToken.data },
-              { headers }
-            )
-            .then((res) => {
-              const userData = res.data._doc;
-              console.log("userData", userData);
-              console.log("userData.userType", userData.userType);
-              if (userData.userType === "Customer") {
-                console.log("userData.name", userData.name == "");
-                if (userData.name == "") {
-                  console.log("Should Show Profile Screen");
-                  setIsUserReg(false);
-                } else {
-                  console.log("Should Not Show Profile Screen");
-                  setIsUserReg(true);
-                }
-              }
-              setUserLoggedInType(userData.userType);
-              setUser({
-                uid: userData.uid,
-                id: userData._id,
-                Phone: userData?.phone,
-                name: userData?.name,
-                email: userData?.email,
-                companyid: userData?.companyid,
-                pushtoken: expoPushToken?.data,
-                vehicle: userData?.vehicle,
-              });
-            })
-            .catch((err) => console.log(err));
-          AsyncStorage.getItem("Valego_request").then((value) => {
-            if (value) {
-              const value0 = JSON.parse(value);
-              // setRequest(value0);
-              axios
-                .get(`${API_URL}/api/customer/request/${value0._id}`, {
-                  headers,
-                })
-                .then((res) => {
-                  setRequest(res.data);
-                })
-                .catch((err) => console.log(err));
-            }
-          });
-        } else {
-          // User is signed out
-          setUser(undefined);
-          setUserData(undefined);
-          setUserLoggedInType(undefined);
+          } else {
+            // User is signed out
+            setUser(undefined);
+            setUserData(undefined);
+            setUserLoggedInType(undefined);
+            setAppLoading(false);
+          }
+        } catch (err) {
+          setAppLoading(false);
+          console.log(err);
         }
       }
     );
@@ -385,14 +446,24 @@ export default function App() {
               setShowAcceptingNotes={setShowAcceptingNotes}
             />
           )}
-          {user && userLoggedInType == "Customer" ? (
+          {!appLoading && user && userLoggedInType == "Customer" ? (
             <UserTabNavigation />
-          ) : user && userLoggedInType == "Worker" ? (
+          ) : !appLoading && user && userLoggedInType == "Worker" ? (
             <WorkerTabNavigation />
-          ) : user && userLoggedInType == "Admin" ? (
+          ) : !appLoading && user && userLoggedInType == "Admin" ? (
             <AdminHomeNavigation />
-          ) : (
+          ) : !appLoading ? (
             <UserAuthNavigation />
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ActivityIndicator color={"#1a344f"} size={"large"} />
+            </View>
           )}
         </NavigationContainer>
       </MyContext.Provider>
@@ -425,8 +496,7 @@ function AcceptingNotes({
   useEffect(() => {
     (async () => {
       if (Platform.OS !== "web") {
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== "granted") {
           alert("Sorry, we need camera roll permissions to make this work!");
         }
@@ -434,7 +504,8 @@ function AcceptingNotes({
     })();
   }, []);
   const pickImageAsync = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });

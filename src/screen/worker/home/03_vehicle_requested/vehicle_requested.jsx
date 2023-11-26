@@ -31,8 +31,10 @@ function Worker_vehicle_requested({ navigation }) {
   const [showViewNotesType, setShowViewNotesType] = useState(false);
 
   const handleDialPress = () => {
-    const phoneNumberToDial = `tel:${request.userId.phone}`;
-    Linking.openURL(phoneNumberToDial);
+    // const phoneNumberToDial = `tel:${request.userId.phone}`;
+    // Linking.openURL(phoneNumberToDial);
+    // open chat
+    navigation.navigate("chat", {});
   };
   const onBtnClick = async () => {
     // navigation.navigate("worker_vehicle_ready", {});

@@ -320,8 +320,7 @@ function CustomerNotes(props) {
   useEffect(() => {
     (async () => {
       if (Platform.OS !== "web") {
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== "granted") {
           alert("Sorry, we need camera roll permissions to make this work!");
         }
@@ -329,7 +328,7 @@ function CustomerNotes(props) {
     })();
   }, []);
   const pickImageAsync = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+    let result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 1,
     });

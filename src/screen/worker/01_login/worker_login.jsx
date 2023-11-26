@@ -51,7 +51,7 @@ function Worker_login({ navigation }) {
     } catch (error) {
       setLoader(false);
 
-      alert("Error", error.message);
+      Alert.alert("Error", "Invalid Email or Password");
     }
   };
   return (

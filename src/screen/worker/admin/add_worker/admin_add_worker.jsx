@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import {
   Text,
   View,
@@ -18,6 +18,7 @@ import globalStyles from "../../../global/globalStyles";
 import CompanyDropdownPicker from "../Component/CompanyDropdownPicker";
 import { MyContext } from "../../../../../context/tokenContext";
 import axios from "axios";
+import PhoneInput from "react-native-phone-number-input";
 
 export default function Admin_add_worker() {
   const { token, API_URL } = useContext(MyContext);
@@ -34,6 +35,7 @@ export default function Admin_add_worker() {
 
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberError, setPhoneNumberError] = useState(false);
+  const phoneInputRef = useRef(null);
 
   const [pwd, setPwd] = useState("");
   const [pwdError, setPwdError] = useState(false);
@@ -146,7 +148,7 @@ export default function Admin_add_worker() {
           <Text style={globalStyles.text_label_heading}>Add Worker</Text>
         </View>
         <CompanyDropdownPicker
-          companyChanged={(companyid) => setSelectedCompany(companyid)}
+          companyChanged={(companyId) => setSelectedCompany(companyId)}
           setCompanyDetails={(company) => setSelectedCompanyDetails(company)}
         />
         {selectedCompanyError && (
@@ -180,12 +182,41 @@ export default function Admin_add_worker() {
           </Text>
         )}
         <Text style={globalStyles.text_label_input}>Phone Number</Text>
-        <TextInput
+        {/* <TextInput
           style={globalStyles.text_input}
           keyboardType="phone-pad"
           placeholder={"+52 1234 567 890"}
           value={phoneNumber}
           onChangeText={(e) => setPhoneNumber(e)}
+        /> */}
+        <PhoneInput
+          ref={phoneInputRef}
+          defaultValue={phoneNumber}
+          defaultCode="MX"
+          layout="first"
+          containerStyle={{
+            backgroundColor: "#fff",
+            width: "100%",
+            // height: 60,
+            marginBottom: 10,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: "#CFCFCF",
+            // paddingHorizontal: 10,
+            fontFamily: "EncodeSansRegular",
+            fontSize: 16,
+            fontWeight: "600",
+            // paddingTop: 5,
+            marginTop: 2,
+          }}
+          textContainerStyle={{ backgroundColor: "none", width: "100%" }}
+          onChangeFormattedText={(text) => {
+            console.log("formatted", text);
+            setPhoneNumber(text);
+          }}
+          // withDarkTheme
+          // withShadow
+          autoFocus
         />
         {phoneNumberError && (
           <Text style={globalStyles.text_label_red}>

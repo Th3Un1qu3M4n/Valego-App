@@ -58,8 +58,9 @@ function Worker_vehicle_ready({ navigation }) {
     // navigation.navigate("user_waiting", {});
   };
   const handleDialPress = () => {
-    const phoneNumberToDial = `tel:${request.userId.phone}`;
-    Linking.openURL(phoneNumberToDial);
+    // const phoneNumberToDial = `tel:${request.userId.phone}`;
+    // Linking.openURL(phoneNumberToDial);
+    navigation.navigate("chat", {});
   };
   useEffect(() => {
     (async () => {
@@ -85,6 +86,25 @@ function Worker_vehicle_ready({ navigation }) {
         Authorization: `Bearer ${token}`,
       };
       console.log("completing request with id", data0.requestId);
+      if (data0.requestId !== request.requestId) {
+        Alert.alert(
+          "Wrong QR Code",
+          "Please scan the correct QR Code",
+          [
+            {
+              text: "Cancel",
+              onPress: () => {
+                setScanned(false);
+              },
+              style: "cancel",
+            },
+            { text: "OK", onPress: () => setScanned(false) },
+          ],
+          { cancelable: false }
+        );
+        return;
+      }
+
       axios
         .post(
           `${API_URL}/api/worker/confirm/${data0.requestId}`,
@@ -159,17 +179,24 @@ function Worker_vehicle_ready({ navigation }) {
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
       <Header />
       <Modal isVisible={showQRModel}>
-        <TouchableWithoutFeedback onPress={() => setShowQRModel(false)}>
-          <View
+        <TouchableWithoutFeedback
+          onPress={() => setShowQRModel(false)}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {/* <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <View style={{ height: Dimensions.get("window").height - 250 }}>
-              {renderCamera()}
-            </View>
-            {/* <Text style={globalStyles.text_label_input}>
+          > */}
+          <View style={{ height: Dimensions.get("window").height - 250 }}>
+            {renderCamera()}
+          </View>
+          {/* <Text style={globalStyles.text_label_input}>
           Keep the camera pointing towards the code for its correct reading
         </Text> */}
-          </View>
+          {/* </View> */}
         </TouchableWithoutFeedback>
       </Modal>
       <ScrollView

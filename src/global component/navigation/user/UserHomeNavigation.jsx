@@ -8,6 +8,7 @@ import User_in_process from "../../../screen/users/home/08_in_process/in_process
 import User_waiting from "../../../screen/users/home/09_waiting/waiting";
 import { MyContext } from "../../../../context/tokenContext";
 import UserPaymentNavigation from "./UserPaymentNavigation";
+import { ChatScreen } from "../../../screen/global/chat";
 const Stack = createNativeStackNavigator();
 
 function UserHomeNavigation() {
@@ -41,6 +42,7 @@ function UserHomeNavigation() {
       {request && request.status === "CarReady" && (
         <Stack.Screen name="user_waiting" component={User_waiting} />
       )}
+      <Stack.Screen name="chat" component={ChatScreen} />
     </Stack.Navigator>
   );
 }

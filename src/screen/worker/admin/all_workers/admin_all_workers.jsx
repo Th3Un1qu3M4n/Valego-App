@@ -43,6 +43,7 @@ export default function Admin_all_workers({ navigation }) {
           let temp = [];
           for (const element of response.data) {
             temp.push({
+              _id: element._id,
               name: element.name,
               email: element.email,
               phone: element.phone,
@@ -66,6 +67,27 @@ export default function Admin_all_workers({ navigation }) {
     });
   };
 
+  const deleteWorker = async (workerId) => {
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+      console.log("workerId", workerId);
+      const response = await axios.post(
+        `${API_URL}/api/worker/delete/${workerId}`,
+        {},
+        { headers }
+      );
+      alert("Worker deleted successfully");
+      setSelectedCompany(null);
+      setSelectedCompanyDetails(null);
+      setWorkerList([]);
+    } catch (error) {
+      console.error("Error deleting worker:", error);
+    }
+  };
+
   console.log("selectedCompanyDetails", selectedCompanyDetails);
   return (
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
@@ -75,7 +97,7 @@ export default function Admin_all_workers({ navigation }) {
           <Text style={globalStyles.text_label_heading}>All Workers</Text>
         </View>
         <CompanyDropdownPicker
-          companyChanged={(companyid) => setSelectedCompany(companyid)}
+          companyChanged={(companyId) => setSelectedCompany(companyId)}
           setCompanyDetails={(company) => setSelectedCompanyDetails(company)}
         />
         {selectedCompany && (
@@ -115,6 +137,31 @@ export default function Admin_all_workers({ navigation }) {
                 <Text style={globalStyles.text_label_card}>
                   ${emp.totalChargeAmount}
                 </Text>
+
+                {/* Delete Worker */}
+                <TouchableOpacity
+                  style={{
+                    marginTop: 10,
+                    height: 30,
+                  }}
+                  onPress={() => {
+                    deleteWorker(emp._id);
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#fff",
+                      fontSize: 12,
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      backgroundColor: "#FF0000",
+                      borderRadius: 5,
+                      padding: 5,
+                    }}
+                  >
+                    Delete
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
           );

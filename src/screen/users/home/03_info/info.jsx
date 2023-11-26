@@ -48,6 +48,8 @@ function User_info({ navigation }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [showImage, setShowImage] = useState(false);
 
+  const [showAddVehicle, setShowAddVehicle] = useState(false);
+
   const [toggle, setToggle] = React.useState(false);
   useEffect(() => {
     (async () => {
@@ -62,6 +64,7 @@ function User_info({ navigation }) {
   }, []);
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
@@ -71,7 +74,7 @@ function User_info({ navigation }) {
       setSelectedImage(result.assets[0].uri);
       setShowImage(true);
     } else {
-      alert("You did not select any image.");
+      // alert("You did not select any image.");
     }
   };
   const validateEmail = () => {
@@ -202,62 +205,92 @@ function User_info({ navigation }) {
             *Correct Email is required.....
           </Text>
         )}
-        <Text style={[globalStyles.text_label_input, { marginTop: 12 }]}>
-          Vehicle
-        </Text>
-        <View style={[globalStyles.text_input, styles.row]}>
-          <TextInput
-            style={globalStyles.text_label_input_text}
-            placeholder="BMW"
-            value={vehicle}
-            onChangeText={(e) => setVehicle(e)}
-          />
-          <TouchableOpacity onPress={pickImageAsync}>
-            <Image
-              source={require("../../../../../assets/icons/a.png")} // Replace with your actual icon path
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-        </View>
-        {vehicleError && (
-          <Text style={globalStyles.text_label_red}>
-            *Vehicle with photo is required.....
+        <TouchableOpacity
+          style={[
+            globalStyles.btn_01,
+            { marginTop: 20, maxWidth: 150, alignSelf: "center", padding: 10 },
+          ]}
+          onPress={() => setShowAddVehicle(!showAddVehicle)}
+        >
+          <Text style={globalStyles.text_label_btn01}>
+            {showAddVehicle ? "Close Section" : "Add vehicle"}
           </Text>
+        </TouchableOpacity>
+
+        {showAddVehicle && (
+          <View style={[styles.row]}>
+            <View style={styles.col1}>
+              <Text style={[globalStyles.text_label_input, { marginTop: 12 }]}>
+                Vehicle
+              </Text>
+              <View
+                style={[
+                  {
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  },
+                  globalStyles.text_input,
+                ]}
+              >
+                <TextInput
+                  style={[globalStyles.text_label_input, { width: "85%" }]}
+                  placeholder="BMW"
+                  value={vehicle}
+                  onChangeText={(e) => setVehicle(e)}
+                />
+                <TouchableOpacity onPress={pickImageAsync}>
+                  <Image
+                    source={require("../../../../../assets/icons/a.png")} // Replace with your actual icon path
+                    style={styles.icon}
+                  />
+                </TouchableOpacity>
+              </View>
+              {vehicleError && (
+                <Text style={globalStyles.text_label_red}>
+                  *Vehicle with photo is required.....
+                </Text>
+              )}
+            </View>
+            <View style={styles.col1}>
+              <Text style={[globalStyles.text_label_input, { marginTop: 12 }]}>
+                License Plate
+              </Text>
+              <TextInput
+                style={globalStyles.text_input}
+                value={licensePlate}
+                onChangeText={(e) => setLicensePlate(e)}
+                placeholder={"ABC-22-1234"}
+              />
+              {licensePlateError && (
+                <Text style={globalStyles.text_label_red}>
+                  *License Plate is required.....
+                </Text>
+              )}
+            </View>
+          </View>
         )}
-        <Text style={globalStyles.text_label_red}>
+
+        <Text style={[globalStyles.text_label_red, { marginTop: 25 }]}>
           *Add photo of your vehicle in which number plate, color and brand is
           visible
         </Text>
+
         {showImage && (
           <Image
             source={{ uri: selectedImage }}
             style={{ width: 100, height: 100, resizeMode: "contain" }}
           />
         )}
-        <View style={styles.row}>
-          <View style={styles.col1}>
-            <Text style={[globalStyles.text_label_input, { marginTop: 12 }]}>
-              License Plate
-            </Text>
-            <TextInput
-              style={globalStyles.text_input}
-              value={licensePlate}
-              onChangeText={(e) => setLicensePlate(e)}
-              placeholder={"ABC-22-1234"}
-            />
-            {licensePlateError && (
-              <Text style={globalStyles.text_label_red}>
-                *License Plate is required.....
-              </Text>
-            )}
-          </View>
-        </View>
+        <View style={styles.row}></View>
 
         <View style={globalStyles.br_3}></View>
 
-        <TouchableOpacity style={globalStyles.btn_01} onPress={onBtnClick}>
-          <Text style={globalStyles.text_label_btn01}>Contiune</Text>
-        </TouchableOpacity>
+        {showAddVehicle && (
+          <TouchableOpacity style={globalStyles.btn_01} onPress={onBtnClick}>
+            <Text style={globalStyles.text_label_btn01}>Contiune</Text>
+          </TouchableOpacity>
+        )}
         <Link
           style={[globalStyles.link_01, { marginTop: 10 }]}
           to={{ screen: "contactus", params: {} }}
@@ -287,7 +320,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   rowText: {
-    flex: 1, 
+    flex: 1,
   },
   textInput: {
     padding: 8, // Adjust padding as needed

@@ -4,6 +4,7 @@ import Workerdashboard from "../../../screen/worker/home/02_dashboard/dashboard"
 import Worker_vehicle_requested from "../../../screen/worker/home/03_vehicle_requested/vehicle_requested";
 import Worker_vehicle_ready from "../../../screen/worker/home/04_vehicle_ready/vehicle_ready";
 import { MyContext } from "../../../../context/tokenContext";
+import { ChatScreen } from "../../../screen/global/chat";
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +31,7 @@ function WorkerHomeNavigation() {
           component={Worker_vehicle_ready}
         />
       )}
+      {request && <Stack.Screen name="chat" component={ChatScreen} />}
     </Stack.Navigator>
   );
 }

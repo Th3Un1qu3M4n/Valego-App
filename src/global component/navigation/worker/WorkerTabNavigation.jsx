@@ -15,6 +15,14 @@ function WorkerTabNavigation() {
         tabBarBadgeStyle: {
           backgroundColor: "red",
         },
+        // tabBarStyle: {
+        //   position: "absolute",
+        //   elevation: 0,
+        //   // backgroundColor: "#ffffff",
+        //   borderRadius: 15,
+        //   height: 60,
+        //   // ...globalStyles.shadow,
+        // },
       }}
     >
       <Tab.Screen

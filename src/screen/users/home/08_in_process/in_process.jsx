@@ -48,8 +48,9 @@ function User_in_process({ navigation }) {
 
   // console.log(request);
   const handleDialPress = () => {
-    const phoneNumberToDial = `tel:${request.workerId.phone}`;
-    Linking.openURL(phoneNumberToDial);
+    // const phoneNumberToDial = `tel:${request.workerId.phone}`;
+    // Linking.openURL(phoneNumberToDial);
+    navigation.navigate("chat", {});
   };
   const onBtnClick = () => {
     navigation.navigate("user_waiting", {});

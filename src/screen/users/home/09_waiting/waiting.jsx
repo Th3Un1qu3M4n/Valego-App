@@ -62,19 +62,26 @@ function User_waiting({ navigation }) {
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
       <Header />
       <Modal isVisible={showQRModel}>
-        <TouchableWithoutFeedback onPress={() => setShowQRModel(false)}>
-          <View
+        <TouchableWithoutFeedback
+          onPress={() => setShowQRModel(false)}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {/* <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <Image
-              style={{ width: 300, height: 300 }}
-              source={{
-                uri:
-                  QRCode ||
-                  "https://us.123rf.com/450wm/vectorina24/vectorina242112/vectorina24211200101/179624322-entry-without-a-qr-code-is-prohibited-a-barcode-in-a-crossed-out-red-circle-a-sign-of-prohibition.jpg",
-              }}
-            />
-          </View>
+          > */}
+          <Image
+            style={{ width: 300, height: 300 }}
+            source={{
+              uri:
+                QRCode ||
+                "https://us.123rf.com/450wm/vectorina24/vectorina242112/vectorina24211200101/179624322-entry-without-a-qr-code-is-prohibited-a-barcode-in-a-crossed-out-red-circle-a-sign-of-prohibition.jpg",
+            }}
+          />
+          {/* </View> */}
         </TouchableWithoutFeedback>
       </Modal>
       <View>
