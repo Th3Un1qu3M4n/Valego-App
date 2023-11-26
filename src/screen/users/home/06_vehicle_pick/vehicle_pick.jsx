@@ -56,6 +56,34 @@ function User_vehicle_pick({ navigation }) {
     navigation.navigate("user_payment", {});
   };
 
+  const cancelRequest = async (requestId) => {
+    console.log("requestId", requestId);
+    try {
+      const token = await auth.currentUser.getIdToken(true);
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+
+      const response = await axios.post(
+        `${API_URL}/api/customer/cancel/${requestId}`,
+        {},
+        {
+          headers,
+        }
+      );
+      console.log(response.data);
+      setRequest(null);
+      // navigation.navigate("worker_dashboard", {});
+    } catch (error) {
+      console.log(error?.response?.data?.error || error?.message || error);
+      Alert.alert(
+        "Error",
+        error?.response?.data?.error || error?.message || error
+      );
+    }
+  };
+
   // const auth = getAuth();
   // const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
@@ -285,6 +313,23 @@ function User_vehicle_pick({ navigation }) {
             </View>
           </TouchableWithoutFeedback>
         </View>
+        <TouchableOpacity onPress={() => cancelRequest(request.requestId)}>
+          <View
+            style={[
+              globalStyles.btn_01,
+              {
+                flexDirection: "row",
+                justifyContent: "center",
+                paddingHorizontal: 15,
+                marginVertical: 10,
+              },
+            ]}
+          >
+            <Text style={[globalStyles.text_label_btn01, {}]}>
+              Cancel Request
+            </Text>
+          </View>
+        </TouchableOpacity>
       </ScrollView>
       <View style={{ position: "absolute", bottom: 20, left: 20 }}>
         <Link

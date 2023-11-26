@@ -11,6 +11,7 @@ import {
   Linking,
   ScrollView,
   Dimensions,
+  Alert,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -59,9 +60,49 @@ function Worker_vehicle_requested({ navigation }) {
       console.error("Error:", error.response.data.error);
     }
   };
+
+  const cancelRequest = async (requestId) => {
+    console.log("requestId", requestId);
+    try {
+      const token = await auth.currentUser.getIdToken(true);
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+
+      const response = await axios.post(
+        `${API_URL}/api/customer/cancel/${requestId}`,
+        {},
+        {
+          headers,
+        }
+      );
+      console.log(response.data);
+      setRequest(null);
+      // navigation.navigate("worker_dashboard", {});
+    } catch (error) {
+      console.log(error?.response?.data?.error || error?.message || error);
+      Alert.alert(
+        "Error",
+        error?.response?.data?.error || error?.message || error
+      );
+    }
+  };
   return (
     <SafeAreaView style={[globalStyles.view_screen]}>
-      <ScrollView style={{ height: ScreenHeight - 50 }}>
+      {/* scrollview with no scrollbars */}
+      {/* <ScrollView style={{ height: ScreenHeight - 50 }}> */}
+      <ScrollView
+        style={{
+          height: ScreenHeight - 50,
+          // backgroundColor: "#fff",
+          // borderTopLeftRadius: 30,
+          // borderTopRightRadius: 30,
+          // paddingHorizontal: 15,
+          // paddingVertical: 25,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
         <Header />
         <ViewNotes
           showViewNotesModel={showViewNotesModel}
@@ -233,6 +274,24 @@ function Worker_vehicle_requested({ navigation }) {
               />
               <Text style={[globalStyles.text_label_btn01, { marginLeft: 15 }]}>
                 Contact Owner
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => cancelRequest(request.requestId)}>
+            <View
+              style={[
+                globalStyles.btn_01,
+                {
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  paddingHorizontal: 15,
+                  marginVertical: 10,
+                },
+              ]}
+            >
+              <Text style={[globalStyles.text_label_btn01, {}]}>
+                Cancel Request
               </Text>
             </View>
           </TouchableOpacity>
