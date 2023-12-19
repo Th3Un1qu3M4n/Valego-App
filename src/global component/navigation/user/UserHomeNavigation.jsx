@@ -42,6 +42,7 @@ function UserHomeNavigation() {
       {request && request.status === "CarReady" && (
         <Stack.Screen name="user_waiting" component={User_waiting} />
       )}
+      {/* <Stack.Screen name="user_in_process" component={User_in_process} /> */}
       <Stack.Screen name="chat" component={ChatScreen} />
     </Stack.Navigator>
   );

@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   ScrollView,
+  Linking,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -21,7 +22,7 @@ import * as ImagePicker from "expo-image-picker";
 import { getAuth, signOut } from "firebase/auth";
 
 function User_setting() {
-  const { user, setRequest } = useContext(MyContext);
+  const { user, setRequest, API_URL } = useContext(MyContext);
 
   const [showEditProfileModel, setShowEditProfileModel] = useState(false);
   const [showAddVehicleModel, setShowAddVehicleModel] = useState(false);
@@ -120,23 +121,35 @@ function User_setting() {
           <Text style={globalStyles.text_label_setting}>About us</Text>
         </View>
         <View style={styles.lineStyle} />
-        <View style={styles.row}>
-          <Image
-            source={require("../../../../../assets/icons/tc.png")} // Replace with your actual icon path
-            style={styles.icon}
-          />
-          <Text style={globalStyles.text_label_setting}>
-            Terms and Conditions
-          </Text>
-        </View>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            Linking.openURL(`${API_URL}/uploads/terms.pdf`);
+          }}
+        >
+          <View style={styles.row}>
+            <Image
+              source={require("../../../../../assets/icons/tc.png")} // Replace with your actual icon path
+              style={styles.icon}
+            />
+            <Text style={globalStyles.text_label_setting}>
+              Terms and Conditions
+            </Text>
+          </View>
+        </TouchableWithoutFeedback>
         <View style={styles.lineStyle} />
-        <View style={styles.row}>
-          <Image
-            source={require("../../../../../assets/icons/shield.png")} // Replace with your actual icon path
-            style={styles.icon}
-          />
-          <Text style={globalStyles.text_label_setting}>Privacy Terms</Text>
-        </View>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            Linking.openURL(`${API_URL}/uploads/privacyTerms.pdf`);
+          }}
+        >
+          <View style={styles.row}>
+            <Image
+              source={require("../../../../../assets/icons/shield.png")} // Replace with your actual icon path
+              style={styles.icon}
+            />
+            <Text style={globalStyles.text_label_setting}>Privacy Terms</Text>
+          </View>
+        </TouchableWithoutFeedback>
         <View style={styles.lineStyle} />
         <TouchableWithoutFeedback onPress={signout}>
           <View style={styles.row}>
@@ -747,7 +760,7 @@ function ShowHistoryModel(props) {
                               </View>
                             </View>
                             <Text style={globalStyles.text_label_card}>
-                              Vehicle: {request.vehicleId.vehicleName}{" "}
+                              Vehicle: {request?.vehicleId?.vehicleName}{" "}
                               {request.vehicleId.plates}
                             </Text>
                             <Text style={globalStyles.text_label_card}>
@@ -821,6 +834,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 30,
     width: "100%",
+    overflow: "hidden",
+    flexWrap: "wrap",
   },
   icon: {
     width: 28, // Set the width of your icon

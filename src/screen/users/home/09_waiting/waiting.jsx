@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Linking,
+  ScrollView,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -32,8 +33,9 @@ function User_waiting({ navigation }) {
     })();
   }, []);
   const handleDialPress = () => {
-    const phoneNumberToDial = `tel:${request.workerId.phone}`;
-    Linking.openURL(phoneNumberToDial);
+    // const phoneNumberToDial = `tel:${request.workerId.phone}`;
+    // Linking.openURL(phoneNumberToDial);
+    navigation.push("chat", {});
   };
   const showQR = async () => {
     try {
@@ -59,7 +61,7 @@ function User_waiting({ navigation }) {
     navigation.navigate("user_waiting", {});
   };
   return (
-    <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
+    <SafeAreaView style={[{ height: "100%" }]}>
       <Header />
       <Modal isVisible={showQRModel}>
         <TouchableWithoutFeedback
@@ -84,7 +86,7 @@ function User_waiting({ navigation }) {
           {/* </View> */}
         </TouchableWithoutFeedback>
       </Modal>
-      <View>
+      <ScrollView contentContainerStyle={{ padding: 10 }}>
         <Text style={globalStyles.text_label_heading}>
           Vehicle waiting to be picked...{" "}
         </Text>
@@ -104,14 +106,14 @@ function User_waiting({ navigation }) {
           </View>
           <View style={globalStyles.card_content}>
             <Text style={globalStyles.text_label_card_heading}>
-              {request.workerId.companyId?.name}
+              {request?.workerId?.companyId?.name}
             </Text>
             <Text style={globalStyles.text_label_card}>
-              Vehicle: {request.vehicleId.vehicleName}{" "}
+              Vehicle: {request?.vehicleId?.vehicleName}{" "}
             </Text>
             <Text style={globalStyles.text_label_card}>
               Admission time:{" "}
-              {new Date(request.checkInTime).toLocaleTimeString([], {
+              {new Date(request?.checkInTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               })}
@@ -160,7 +162,7 @@ function User_waiting({ navigation }) {
             </Text>
           </View>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
       {/* <View style={{ position: "absolute", bottom: 10, left: 20 }}>
         <Link
           style={globalStyles.link_01}

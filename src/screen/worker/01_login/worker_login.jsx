@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../global/header";

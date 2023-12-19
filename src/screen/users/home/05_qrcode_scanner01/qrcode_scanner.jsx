@@ -8,6 +8,7 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -58,7 +59,7 @@ function User_qrcode_scanner({ navigation }) {
     setScanned(false);
   }, []);
 
-  const renderCamera = () => {
+  const RenderCamera = () => {
     // useEffect(() => {
     //   const unsubscribe = navigation.addListener("focus", () => {
     //     setScanned(false);
@@ -113,7 +114,7 @@ function User_qrcode_scanner({ navigation }) {
     };
 
     return (
-      <View style={styles.container}>
+      <View>
         {hasPermission === null ? (
           <Text>Requesting for camera permission</Text>
         ) : hasPermission === false ? (
@@ -121,7 +122,7 @@ function User_qrcode_scanner({ navigation }) {
             Camera permission is not granted
           </Text>
         ) : (
-          <View>
+          <>
             <TouchableOpacity
               style={[
                 globalStyles.btn_01,
@@ -137,26 +138,33 @@ function User_qrcode_scanner({ navigation }) {
             </TouchableOpacity>
             <View
               style={{
-                height: "100%",
-                width: Dimensions.get("window").width,
                 flex: 1,
+                // height: "100%",
+                // width: "100%",
+                height: Dimensions.get("window").height - 200,
+                width: Dimensions.get("window").width - 50,
+                flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
+                justifyContent: "flex-start",
+                // backgroundColor: "red",
+                position: "relative",
               }}
             >
               {!scanned && (
                 <BarCodeScanner
                   onBarCodeScanned={(e) => handleBarCodeScanned(e)}
                   style={{
-                    marginVertical: 10,
+                    position: "absolute",
+                    top: 0,
+                    margin: 0,
                     zIndex: 0,
-                    height: Dimensions.get("window").height,
-                    width: Dimensions.get("window").width,
+                    height: "100%",
+                    width: "100%",
                   }}
                 />
               )}
             </View>
-          </View>
+          </>
         )}
       </View>
     );
@@ -177,21 +185,52 @@ function User_qrcode_scanner({ navigation }) {
     navigation.navigate("user_vehicle_pick", {});
   };
   return (
-    <SafeAreaView style={globalStyles.view_screen}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        flexDirection: "column",
+      }}
+    >
       <View>
-        <Header style={styles.overlay} />
-        <View style={{ height: Dimensions.get("window").height - 200 }}>
-          {renderCamera()}
-        </View>
-
-        {/* <TouchableOpacity  style={globalStyles.btn_01} onPress={onBtnClick} >
-          <Text style={globalStyles.text_label_btn01}>Cancel</Text>
-        </TouchableOpacity> */}
-
-        <Text style={globalStyles.text_label_input}>
+        {/* <Text>HEELo</Text> */}
+        <Header style={[{ height: "100%" }]} />
+      </View>
+      <ScrollView
+        contentContainerStyle={{
+          // height:
+          //   Dimensions.get("window").height -
+          //   Dimensions.get("window").width / 100,
+          // marginTop: 200,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <RenderCamera />
+      </ScrollView>
+      <View
+        style={{
+          // height:
+          //   Dimensions.get("window").height -
+          //   Dimensions.get("window").width / 100,
+          marginTop: 200,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "flex=start",
+          position: "absolute",
+          gap: 10,
+          paddingHorizontal: 10,
+          bottom: 0,
+        }}
+      >
+        <Text style={[globalStyles.text_label_input]}>
           Keep the camera pointing towards the code for its correct reading
         </Text>
-        {/* <View style={globalStyles.br_10}></View> */}
         <Link
           style={globalStyles.link_01}
           to={{ screen: "contactus", params: {} }}
@@ -199,6 +238,54 @@ function User_qrcode_scanner({ navigation }) {
           Contact us
         </Link>
       </View>
+      {/* <View
+        style={{
+          // height:
+          //   Dimensions.get("window").height -
+          //   Dimensions.get("window").width / 100,
+          marginTop: 200,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          // position: "absolute",
+          // bottom: 200,
+        }}
+      > */}
+
+      {/* </View> */}
+      {/* <View style={{ flex: 1, backgroundColor: "red" }}> */}
+      {/* <Header style={[{ height: "100%" }]} /> */}
+
+      {/* <TouchableOpacity  style={globalStyles.btn_01} onPress={onBtnClick} >
+          <Text style={globalStyles.text_label_btn01}>Cancel</Text>
+        </TouchableOpacity> */}
+
+      {/* <View
+          style={{
+            // height:
+            //   Dimensions.get("window").height -
+            //   Dimensions.get("window").width / 100,
+            marginTop: 200,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            // position: "absolute",
+            // bottom: 200,
+          }}
+        >
+          <Text style={[globalStyles.text_label_input]}>
+            Keep the camera pointing towards the code for its correct reading
+          </Text>
+          <Link
+            style={globalStyles.link_01}
+            to={{ screen: "contactus", params: {} }}
+          >
+            Contact us
+          </Link>
+        </View> */}
+      {/* </View> */}
     </SafeAreaView>
   );
 }

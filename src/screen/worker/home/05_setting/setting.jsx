@@ -355,20 +355,20 @@ function ShowHistoryModel(props) {
                                   style={globalStyles.text_label_card_heading}
                                   // style={{}}
                                 >
-                                  {request.userId?.name}
+                                  {request?.userId?.name}
                                 </Text>
                               </View>
                               <View>
                                 <Text
                                   style={globalStyles.text_label_card_heading}
                                 >
-                                  {request.isPaymentMade ? "CARD" : "CASH"}
+                                  {request?.isPaymentMade ? "CARD" : "CASH"}
                                 </Text>
                               </View>
                             </View>
                             <Text style={globalStyles.text_label_card}>
-                              Vehicle: {request.vehicleId.vehicleName}{" "}
-                              {request.vehicleId.plates}
+                              Vehicle: {request?.vehicleId?.vehicleName}{" "}
+                              {request?.vehicleId?.plates}
                             </Text>
                             <Text style={globalStyles.text_label_card}>
                               Admission time:{" "}
@@ -383,7 +383,7 @@ function ShowHistoryModel(props) {
                             <Text style={globalStyles.text_label_card}>
                               Checkout time:{" "}
                               {new Date(
-                                request.checkOutTime
+                                request?.checkOutTime
                               ).toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
@@ -391,18 +391,17 @@ function ShowHistoryModel(props) {
                             </Text>
                             <Text style={globalStyles.text_label_card}>
                               Date:{" "}
-                              {new Date(request.checkInTime).toLocaleDateString(
-                                [],
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )}
+                              {new Date(
+                                request?.checkInTime
+                              ).toLocaleDateString([], {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
                             </Text>
                             <Text style={globalStyles.text_label_card}>
                               Amount:{" "}
-                              {(request.amount / 100).toLocaleString("en-US", {
+                              {(request?.amount / 100).toLocaleString("en-US", {
                                 style: "currency",
                                 currency: "USD",
                               })}

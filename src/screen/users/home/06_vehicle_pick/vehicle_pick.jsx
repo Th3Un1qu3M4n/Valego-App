@@ -177,16 +177,29 @@ function User_vehicle_pick({ navigation }) {
     navigation.navigate("user_payment", {});
   };
   const handleDialPress = () => {
-    const phoneNumberToDial = `tel:${request.workerId.phone}`;
-    Linking.openURL(phoneNumberToDial);
+    // const phoneNumberToDial = `tel:${request.workerId.phone}`;
+    // Linking.openURL(phoneNumberToDial);
+    navigation.push("chat", {});
   };
   return (
-    <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
+    <SafeAreaView
+      style={[
+        // globalStyles.view_screen,
+        { height: "100%" },
+      ]}
+    >
       <Header />
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        contentContainerStyle={{
+          // height: "100%",
+          // backgroundColor: "red",
+          // marginBottom: 755,
+          // width: "100%",
+          padding: 20,
+        }}
       >
         <CustomerNotes
           showCustomerNotesModel={showCustomerNotesModel}
@@ -330,21 +343,21 @@ function User_vehicle_pick({ navigation }) {
             </Text>
           </View>
         </TouchableOpacity>
+        <View style={{}}>
+          <Link
+            style={globalStyles.link_01}
+            to={{ screen: "contactus", params: {} }}
+          >
+            Report a Problem
+          </Link>
+          <Link
+            style={globalStyles.link_01}
+            to={{ screen: "contactus", params: {} }}
+          >
+            Contact us
+          </Link>
+        </View>
       </ScrollView>
-      <View style={{ position: "absolute", bottom: 20, left: 20 }}>
-        <Link
-          style={globalStyles.link_01}
-          to={{ screen: "contactus", params: {} }}
-        >
-          Report a Problem
-        </Link>
-        <Link
-          style={globalStyles.link_01}
-          to={{ screen: "contactus", params: {} }}
-        >
-          Contact us
-        </Link>
-      </View>
     </SafeAreaView>
   );
 }

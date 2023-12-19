@@ -84,10 +84,11 @@ export default function App() {
   const [isUserReg, setIsUserReg] = useState(false);
   // const [requestId, setRequestId] = useState(null);
   // Customer
-  const [request, setRequest] = useState(null);
+  const [request, setRequest] = useState();
   const [activeRequests, setActiveRequests] = useState([]);
 
   const API_URL = "http://18.205.125.110:3000";
+  // const API_URL = "http://192.168.18.55:3000";
   // Notification
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
@@ -170,7 +171,7 @@ export default function App() {
 
       Alert.alert(
         "Parking Request",
-        `${vehicle.vehicleName} - ${vehicle.plates}`,
+        `${vehicle?.vehicleName} - ${vehicle?.plates}`,
         [
           {
             text: "OK",
@@ -614,7 +615,8 @@ function AcceptingNotes({
                   style={{ width: 120, height: 120 }}
                 />
                 <Text style={globalStyles.text_label_input_text}>
-                  {request.vehicleId.vehicleName} | {request.vehicleId.plates}
+                  {request?.vehicleId?.vehicleName} |{" "}
+                  {request?.vehicleId?.plates}
                 </Text>
               </View>
               <Text style={globalStyles.text_label_heading}>

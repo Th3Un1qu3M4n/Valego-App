@@ -50,18 +50,19 @@ function User_in_process({ navigation }) {
   const handleDialPress = () => {
     // const phoneNumberToDial = `tel:${request.workerId.phone}`;
     // Linking.openURL(phoneNumberToDial);
-    navigation.navigate("chat", {});
+    navigation.push("chat", {});
   };
   const onBtnClick = () => {
     navigation.navigate("user_waiting", {});
   };
   return (
-    <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
+    <SafeAreaView style={[{ height: "100%" }]}>
       <Header />
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        contentContainerStyle={{ padding: 10 }}
       >
         <ViewNotes
           showViewNotesModel={showViewNotesModel}
@@ -84,20 +85,20 @@ function User_in_process({ navigation }) {
           </View>
           <View style={globalStyles.card_content}>
             <Text style={globalStyles.text_label_card_heading}>
-              {request.workerId.companyId.name}
+              {request?.workerId?.companyId.name}
             </Text>
             <Text style={globalStyles.text_label_card}>
-              Vehicle: {request.vehicleId.vehicleName}{" "}
+              Vehicle: {request?.vehicleId?.vehicleName}{" "}
             </Text>
             <Text style={globalStyles.text_label_card}>
               Check in hour:{" "}
-              {new Date(request.checkInTime).toLocaleTimeString([], {
+              {new Date(request?.checkInTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               })}{" "}
             </Text>
             <Text style={globalStyles.text_label_card}>
-              Price: ${request.amount / 100} MXN{" "}
+              Price: ${request?.amount / 100} MXN{" "}
             </Text>
           </View>
         </View>
@@ -172,9 +173,23 @@ function User_in_process({ navigation }) {
             </View>
           </TouchableWithoutFeedback>
         </View>
+        <View style={{}}>
+          <Link
+            style={globalStyles.link_01}
+            to={{ screen: "contactus", params: {} }}
+          >
+            Report a Problem
+          </Link>
+          <Link
+            style={globalStyles.link_01}
+            to={{ screen: "contactus", params: {} }}
+          >
+            Contact us
+          </Link>
+        </View>
         {/*  */}
       </ScrollView>
-      <View style={{ position: "absolute", bottom: 10, left: 20 }}>
+      {/* <View style={{ position: "absolute", bottom: 10, left: 20 }}>
         <Link
           style={globalStyles.link_01}
           to={{ screen: "contactus", params: {} }}
@@ -187,7 +202,7 @@ function User_in_process({ navigation }) {
         >
           Contact us
         </Link>
-      </View>
+      </View> */}
     </SafeAreaView>
   );
 }

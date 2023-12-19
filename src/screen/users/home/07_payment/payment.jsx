@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Alert,
+  ScrollView,
 } from "react-native";
 import { Link } from "@react-navigation/native";
 import Header from "../../../global/header";
@@ -165,9 +166,9 @@ function User_payment({ navigation }) {
     }
   };
   return (
-    <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
+    <SafeAreaView style={[{ height: "100%" }]}>
       <Header />
-      <View>
+      <ScrollView contentContainerStyle={{ padding: 10 }}>
         <Text style={globalStyles.text_label_heading}>
           Total: ${request?.amount ? request?.amount / 100 : ""} MXN{" "}
         </Text>
@@ -223,8 +224,22 @@ function User_payment({ navigation }) {
         <TouchableOpacity style={globalStyles.btn_01} onPress={onBtnClick}>
           <Text style={globalStyles.text_label_btn01}>Pay now</Text>
         </TouchableOpacity>
-      </View>
-      <View style={{ position: "absolute", bottom: 20, left: 20 }}>
+        <View style={{}}>
+          <Link
+            style={globalStyles.link_01}
+            to={{ screen: "contactus", params: {} }}
+          >
+            Report a Problem
+          </Link>
+          <Link
+            style={globalStyles.link_01}
+            to={{ screen: "contactus", params: {} }}
+          >
+            Contact us
+          </Link>
+        </View>
+      </ScrollView>
+      {/* <View style={{ position: "absolute", bottom: 20, left: 20 }}>
         <Link
           style={globalStyles.link_01}
           to={{ screen: "contactus", params: {} }}
@@ -237,7 +252,7 @@ function User_payment({ navigation }) {
         >
           Contact us
         </Link>
-      </View>
+      </View> */}
     </SafeAreaView>
   );
 }

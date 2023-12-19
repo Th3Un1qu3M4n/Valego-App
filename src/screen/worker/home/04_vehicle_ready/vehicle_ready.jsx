@@ -60,7 +60,7 @@ function Worker_vehicle_ready({ navigation }) {
   const handleDialPress = () => {
     // const phoneNumberToDial = `tel:${request.userId.phone}`;
     // Linking.openURL(phoneNumberToDial);
-    navigation.navigate("chat", {});
+    navigation.push("chat", {});
   };
   useEffect(() => {
     (async () => {
@@ -75,6 +75,7 @@ function Worker_vehicle_ready({ navigation }) {
   };
   const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
+    setShowQRModel(false);
     const data0 = JSON.parse(data);
     // console.log("completing request with id", data0.requestId);
     // return;
@@ -108,7 +109,7 @@ function Worker_vehicle_ready({ navigation }) {
       axios
         .post(
           `${API_URL}/api/worker/confirm/${data0.requestId}`,
-          { requestId: request.requestId },
+          { requestId: data0.requestId },
           {
             headers,
           }
@@ -120,15 +121,17 @@ function Worker_vehicle_ready({ navigation }) {
         })
         .catch((err) => {
           console.log(err.response.data);
+          Alert.alert("Error With QR Code", err?.response?.data?.error);
           setScanned(false);
         });
     } catch (e) {
       console.log("Error:", e);
+      Alert.alert("Error With QR Code", e?.error);
       setScanned(false);
     }
   };
 
-  const renderCamera = () => {
+  const RenderCamera = () => {
     useEffect(() => {
       setScanned(false);
     }, []);
@@ -178,27 +181,33 @@ function Worker_vehicle_ready({ navigation }) {
   return (
     <SafeAreaView style={[globalStyles.view_screen, { height: "100%" }]}>
       <Header />
-      <Modal isVisible={showQRModel}>
-        <TouchableWithoutFeedback
-          onPress={() => setShowQRModel(false)}
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {/* <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          > */}
-          <View style={{ height: Dimensions.get("window").height - 250 }}>
-            {renderCamera()}
-          </View>
-          {/* <Text style={globalStyles.text_label_input}>
+      {showQRModel && (
+        <Modal isVisible={showQRModel}>
+          <TouchableWithoutFeedback
+            onPress={() => setShowQRModel(false)}
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {/* <View style={{ height: Dimensions.get("window").height - 250 }}> */}
+              {<RenderCamera />}
+              {/* </View> */}
+              {/* <Text style={globalStyles.text_label_input}>
           Keep the camera pointing towards the code for its correct reading
         </Text> */}
-          {/* </View> */}
-        </TouchableWithoutFeedback>
-      </Modal>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      )}
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -314,8 +323,11 @@ function Worker_vehicle_ready({ navigation }) {
               },
             ]}
           >
-            <View style={[styles.qrcodeIcon]}>
-              <Image source={require("../../../../../assets/icons/qr.png")} />
+            <View style={{ backgroundColor: "#fff", padding: 1 }}>
+              <Image
+                source={require(`../../../../../assets/icons/qr.png`)}
+                style={[styles.icon]}
+              />
             </View>
             <Text style={[globalStyles.text_label_btn01, { marginLeft: 15 }]}>
               SCAN QR
@@ -372,10 +384,15 @@ function Worker_vehicle_ready({ navigation }) {
   );
 }
 const styles = StyleSheet.create({
+  // icon: {
+  //   width: 24, // Set the width of your icon
+  //   height: 24, // Set the height of your icon
+  //   marginRight: 8, // Adjust margin as needed
+  //   resizeMode: "contain",
+  // },
   icon: {
     width: 24, // Set the width of your icon
     height: 24, // Set the height of your icon
-    marginRight: 8, // Adjust margin as needed
     resizeMode: "contain",
   },
   qrcodeIcon: {

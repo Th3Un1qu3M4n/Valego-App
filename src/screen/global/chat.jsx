@@ -12,14 +12,63 @@ import {
   doc,
   setDoc,
 } from "firebase/firestore";
+import { Alert, Text, TouchableOpacity } from "react-native";
+import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { getAuth } from "firebase/auth";
+import axios from "axios";
 
 export function ChatScreen({ navigation }) {
   const [messages, setMessages] = useState([]);
-  const { user, request } = useContext(MyContext);
+  const auth = getAuth();
+  const { user, request, userLoggedInType, API_URL } = useContext(MyContext);
   const db = getFirestore(app);
+
+  console.log("User IS ", userLoggedInType);
+  console.log("worker Token IS ", request?.workerId?.pushToken);
+  console.log("user token IS ", request?.userId?.pushToken);
+
+  const sendMessage = async (message) => {
+    console.log("message", message);
+    try {
+      const token = await auth.currentUser.getIdToken(true);
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+
+      let pushToken;
+      if (userLoggedInType == "Customer") {
+        pushToken = request?.workerId?.pushToken;
+      } else {
+        pushToken = request?.userId?.pushToken;
+      }
+
+      const response = await axios.post(
+        `${API_URL}/api/notification/send/`,
+        {
+          pushToken: pushToken,
+          messageData: message,
+        },
+        {
+          headers,
+        }
+      );
+      console.log(response.data);
+      // setRequest(null);
+      // navigation.navigate("worker_dashboard", {});
+    } catch (error) {
+      console.log(error?.response?.data?.error || error?.message || error);
+      Alert.alert(
+        "Error",
+        error?.response?.data?.error || error?.message || error
+      );
+    }
+  };
 
   useEffect(() => {
     try {
+      console.log("wherer", request?._id);
       const q = query(
         collection(db, "chats"),
         where("requestId", "==", request?._id),
@@ -60,6 +109,7 @@ export function ChatScreen({ navigation }) {
           user,
           requestId: request?._id,
         });
+        sendMessage(text);
       } catch (error) {
         console.log(error);
       }
@@ -70,6 +120,20 @@ export function ChatScreen({ navigation }) {
 
   return (
     <>
+      <SafeAreaView>
+        <TouchableOpacity
+          style={{
+            padding: 20,
+            backgroundColor: "#1a344f",
+            // textColor: "#ff",
+          }}
+          onPress={() => {
+            navigation.pop();
+          }}
+        >
+          <Text style={{ color: "white" }}>BACK</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
       {request && (
         <GiftedChat
           messages={messages}

@@ -35,7 +35,7 @@ function Worker_vehicle_requested({ navigation }) {
     // const phoneNumberToDial = `tel:${request.userId.phone}`;
     // Linking.openURL(phoneNumberToDial);
     // open chat
-    navigation.navigate("chat", {});
+    navigation.push("chat", {});
   };
   const onBtnClick = async () => {
     // navigation.navigate("worker_vehicle_ready", {});
@@ -131,10 +131,10 @@ function Worker_vehicle_requested({ navigation }) {
             </View>
             <View style={globalStyles.card_content}>
               <Text style={globalStyles.text_label_card_heading}>
-                {request.workerId.companyId.name}
+                {request?.workerId?.companyId.name}
               </Text>
               <Text style={globalStyles.text_label_card}>
-                Vehicle: {request.vehicleId.vehicleName}{" "}
+                Vehicle: {request?.vehicleId?.vehicleName}{" "}
               </Text>
               <Text style={globalStyles.text_label_card}>
                 Check in hour:{" "}
